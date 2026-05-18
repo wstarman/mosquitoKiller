@@ -56,6 +56,5 @@ public class GameManager : MonoBehaviour
         {
             isHandContact = false;
         }
-        Debug.Log(isHandContact);
     }
 }

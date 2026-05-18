@@ -18,7 +18,8 @@ public class UIManager : MonoBehaviour
     void Update()
     {
         float dis = (GameManager.Instance.leftHand - GameManager.Instance.rightHand).magnitude;
-        DebugLabel.text = $"Left Hand: {GameManager.Instance.leftHand}\n" +
+        DebugLabel.text = $"Using Device: {(InputManager.useKinect ? "Kinect" : "Mouse")}\n"+
+                          $"Left Hand: {GameManager.Instance.leftHand}\n" +
                           $"Right Hand: {GameManager.Instance.rightHand}\n" +
                           $"Distance: {dis}";
     }
