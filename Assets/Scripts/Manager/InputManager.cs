@@ -15,10 +15,14 @@ public class InputManager : MonoBehaviour
         try
         {
             sensor = KinectSensor.GetDefault();
+            if (sensor == null)
+            {
+                useKinect = false;
+                return;
+            }
             sensor.Open();
             bodyReader = sensor.BodyFrameSource.OpenReader();
             bodies = new Body[sensor.BodyFrameSource.BodyCount];
-            useKinect = true;
         }
         catch
         {
@@ -28,6 +32,8 @@ public class InputManager : MonoBehaviour
 
     void Update()
     {
+        useKinect = sensor != null && sensor.IsAvailable;
+
         if (useKinect)
         {
             UpdateKinect();
@@ -50,7 +56,7 @@ public class InputManager : MonoBehaviour
 
         //for(int i=1;i< sensor.BodyFrameSource.BodyCount; i++)
         //{
-        //    bodies[i] = null;   // ¶È°»´ú¤@¤H
+        //    bodies[i] = null;   // ï¿½È°ï¿½ï¿½ï¿½ï¿½@ï¿½H
         //}
 
         foreach (var body in bodies)
@@ -81,7 +87,11 @@ public class InputManager : MonoBehaviour
             0
         );
 
-        Vector3 offset = new Vector3(2.0f, 0, 0);
+        bool isCursor = GameStateManager.Instance == null ||
+                        GameStateManager.Instance.CurrentState != GameState.Playing;
+        float offsetX = isCursor ? 0.5f : 2.0f;
+        Vector3 offset = new Vector3(offsetX, 0, 0);
+
         if (Input.GetMouseButton(0))
         {
             GameManager.Instance.leftHand = pos;

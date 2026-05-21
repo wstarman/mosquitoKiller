@@ -10,7 +10,15 @@ public class GameManager : MonoBehaviour
     public Vector3 leftHand = new(-200, 0, 0);
     public Vector3 rightHand = new(200, 0, 0);
     public float distance;
-    public bool isHandContact = false;  // °O¿ı¤â¬O§_¸I¦b¤@°_
+    public bool isHandContact = false;  // æ˜¯å¦å…©æ‰‹ç¢°åœ¨ä¸€èµ·
+
+    [Header("Playing Mode")]
+    public float PlayingClapDistance = 1.5f;
+    public float PlayingResetDistance = 2.0f;
+
+    [Header("Cursor Mode")]
+    public float CursorClapDistance = 0.3f;
+    public float CursorResetDistance = 0.6f;
 
     public static event Action OnHandClap;
 
@@ -34,17 +42,24 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        
+
     }
 
     void Update()
     {
 
     }
+
     public void UpdateHand()
     {
         distance = (leftHand - rightHand).magnitude;
-        if(distance < 1.5)
+
+        bool isCursor = GameStateManager.Instance == null ||
+                        GameStateManager.Instance.CurrentState != GameState.Playing;
+        float clapDist  = isCursor ? CursorClapDistance  : PlayingClapDistance;
+        float resetDist = isCursor ? CursorResetDistance : PlayingResetDistance;
+
+        if (distance < clapDist)
         {
             if (!isHandContact)
             {
@@ -52,7 +67,7 @@ public class GameManager : MonoBehaviour
             }
             isHandContact = true;
         }
-        else if(distance > 2.0)
+        else if (distance > resetDist)
         {
             isHandContact = false;
         }
