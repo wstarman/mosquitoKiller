@@ -11,6 +11,8 @@ public class GameManager : MonoBehaviour
     public Vector3 rightHand = new(200, 0, 0);
     public float distance;
     public bool isHandContact = false;  // 是否兩手碰在一起
+    public int ep = 100;
+    public int[] epCosts;
 
     [Header("Playing Mode")]
     public float PlayingClapDistance = 1.5f;
@@ -21,6 +23,7 @@ public class GameManager : MonoBehaviour
     public float CursorResetDistance = 0.6f;
 
     public static event Action OnHandClap;
+    public static event Action<int> SkillReleased;
 
     void Awake()
     {
@@ -38,6 +41,8 @@ public class GameManager : MonoBehaviour
     {
         leftHand = new(-2, 0, 0);
         rightHand = new(2, 0, 0);
+        epCosts = new int[5] { 0, 30, 30, 50, 100};
+        InputManager.DetectedSkill += OnSkillDetected;
     }
 
     void Start()
@@ -70,6 +75,18 @@ public class GameManager : MonoBehaviour
         else if (distance > resetDist)
         {
             isHandContact = false;
+        }
+    }
+
+    void OnSkillDetected(int sId)
+    {
+        Debug.Log("Skill:"+sId.ToString());
+        if (ep >= epCosts[sId])
+        {
+            SkillReleased?.Invoke(sId);
+            // todo: 
+            // ep -= epCost[sId - 1];
+            // cool down
         }
     }
 }
