@@ -155,8 +155,8 @@ public class InputManager : MonoBehaviour
             // skill 2 Ãz¬µ
             if (leftShoulderAngelDiagonal < skillThresholdSmall && rightShoulderAngelDiagonal < skillThresholdSmall)
             {
-                debugText += "Skill: Explotion!\n";
-                currentSkill = Skill.Explotion;
+                debugText += "Skill: Explosion!\n";
+                currentSkill = Skill.Explosion;
             }
         }
         // skill 3 ¹q°A©ç
