@@ -406,7 +406,7 @@ MonoBehaviour:
   distance: 0
   isHandContact: 0
   ep: 100
-  epCost: 1e0000001e0000003200000064000000
+  epCosts: 
   PlayingClapDistance: 1.5
   PlayingResetDistance: 2
   CursorClapDistance: 0.3
@@ -1164,12 +1164,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 555625858}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5.873085, y: 0, z: 182.0674}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 5.3474016, y: 2.362657, z: 177.02113}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1248539942}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &724128707
 GameObject:
@@ -1871,7 +1871,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 751444ed26ec74d47a7f78b3b184f3cc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  InputDebugLabel: {fileID: 134431028}
 --- !u!4 &1013127658
 Transform:
   m_ObjectHideFlags: 0
@@ -2331,6 +2330,7 @@ Transform:
   - {fileID: 1531733126}
   - {fileID: 1855648104}
   - {fileID: 815947137}
+  - {fileID: 555625860}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1310800936
@@ -2456,8 +2456,8 @@ Transform:
   m_GameObject: {fileID: 1313328886}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 3, y: 8, z: 0.01}
+  m_LocalPosition: {x: 7.29, y: -0.04, z: 0}
+  m_LocalScale: {x: 0.4257, y: 1.1352, z: 0.001419}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 724128709}
@@ -2535,7 +2535,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.5, y: 0.5, z: 0.5}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!33 &1313328891
 MeshFilter:
@@ -3903,5 +3903,4 @@ SceneRoots:
   - {fileID: 1990950875}
   - {fileID: 397607997}
   - {fileID: 854938852}
-  - {fileID: 555625860}
   - {fileID: 724128709}
