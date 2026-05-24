@@ -1,73 +1,75 @@
-using Assets.Scripts.Datas;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Assets.Scripts.Manager
+public class GameManager : MonoBehaviour
 {
-    public class GameManager : MonoBehaviour
+    public static GameManager Instance { get; private set; }
+
+    public Vector3 leftHand = new(-200, 0, 0);
+    public Vector3 rightHand = new(200, 0, 0);
+    public float distance;
+    public bool isHandContact = false;  // ÊòØÂê¶ÂÖ©ÊâãÁ¢∞Âú®‰∏ÄËµ∑
+
+    [Header("Playing Mode")]
+    public float PlayingClapDistance = 1.5f;
+    public float PlayingResetDistance = 2.0f;
+
+    [Header("Cursor Mode")]
+    public float CursorClapDistance = 0.3f;
+    public float CursorResetDistance = 0.6f;
+
+    public static event Action OnHandClap;
+
+    void Awake()
     {
-        public static GameManager Instance { get; private set; }
-
-        public Vector3 leftHand = new(-200, 0, 0);
-        public Vector3 rightHand = new(200, 0, 0);
-        public float distance;
-        public bool isHandContact = false;  // ∞Oø˝§‚¨Oß_∏I¶b§@∞_
-
-        public static event Action OnHandClap;
-        public static event Action<int> SkillReleased;
-
-        void Awake()
+        if (Instance != null && Instance != this)
         {
-            if (Instance != null && Instance != this)
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+        Init();
+    }
+
+    void Init()
+    {
+        leftHand = new(-2, 0, 0);
+        rightHand = new(2, 0, 0);
+    }
+
+    void Start()
+    {
+
+    }
+
+    void Update()
+    {
+
+    }
+
+    public void UpdateHand()
+    {
+        distance = (leftHand - rightHand).magnitude;
+
+        bool isCursor = GameStateManager.Instance == null ||
+                        GameStateManager.Instance.CurrentState != GameState.Playing;
+        float clapDist = isCursor ? CursorClapDistance : PlayingClapDistance;
+        float resetDist = isCursor ? CursorResetDistance : PlayingResetDistance;
+
+        if (distance < clapDist)
+        {
+            if (!isHandContact)
             {
-                Destroy(gameObject);
-                return;
+                OnHandClap?.Invoke();
             }
-
-            Instance = this;
-            Init();
+            isHandContact = true;
         }
-
-        void Init()
+        else if (distance > resetDist)
         {
-            leftHand = new(-2, 0, 0);
-            rightHand = new(2, 0, 0);
-            InputManager.ReleaseSkill += this.OnSkill;
-        }
-
-        void Start()
-        {
-
-        }
-
-        void Update()
-        {
-
-        }
-        public void UpdateHand()
-        {
-            distance = (leftHand - rightHand).magnitude;
-            if (distance < 1.5)
-            {
-                if (!isHandContact)
-                {
-                    OnHandClap?.Invoke();
-                }
-                isHandContact = true;
-            }
-            else if (distance > 2.0)
-            {
-                isHandContact = false;
-            }
-        }
-
-        public void OnSkill(int sId)
-        {
-            Skill skill = (Skill)sId;
-            SkillReleased.Invoke(sId);
-            // TODO: ≥B≤zßﬁØ‡Æƒ™G
+            isHandContact = false;
         }
     }
 }
