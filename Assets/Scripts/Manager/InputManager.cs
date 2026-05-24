@@ -224,7 +224,6 @@ public class InputManager : MonoBehaviour
         {
             currentSkillRemainingFrame = 0;
         }
-        Debug.Log(currentSkillRemainingFrame);
         prevSkill = currentSkill;
 
         frame.Dispose();

@@ -80,7 +80,6 @@ public class GameManager : MonoBehaviour
 
     void OnSkillDetected(int sId)
     {
-        Debug.Log("Skill:"+sId.ToString());
         if (ep >= epCosts[sId])
         {
             SkillReleased?.Invoke(sId);
