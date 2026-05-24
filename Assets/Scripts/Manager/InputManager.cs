@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,24 +6,52 @@ using Windows.Kinect;
 
 public class InputManager : MonoBehaviour
 {
+    public static InputManager Instance { get; private set; }
     KinectSensor sensor;
     BodyFrameReader bodyReader;
     Body[] bodies;
-    public static bool useKinect = true;
+    ulong lockedId = 0;
+    public static bool useKinect = false;
+
+    readonly float displayMagnification = 10f;
+    readonly float skillThresholdBig = 40f;     // 技能判斷可容許的誤差(角度)
+    readonly float skillThresholdSmall = 25f;   // 較小的誤差，目前僅用於爆炸手勢的上手臂角度
+    readonly int minSkillRemainingFrame = 5; // 技能需持續被偵測多少幀才會釋放
+
+    int currentSkillRemainingFrame = 0;
+    Skill prevSkill = Skill.None;
+
+    public static event Action<int> DetectedSkill;
+
+    void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+
+        sensor = KinectSensor.GetDefault();
+        if (sensor == null)
+        {
+            useKinect = false;
+            return;
+        }
+        sensor.Open();
+        bodyReader = sensor.BodyFrameSource.OpenReader();
+        bodies = new Body[sensor.BodyFrameSource.BodyCount];
+    }
 
     void Start()
     {
         try
         {
             sensor = KinectSensor.GetDefault();
-            if (sensor == null)
-            {
-                useKinect = false;
-                return;
-            }
             sensor.Open();
             bodyReader = sensor.BodyFrameSource.OpenReader();
             bodies = new Body[sensor.BodyFrameSource.BodyCount];
+            useKinect = true;
         }
         catch
         {
@@ -32,8 +61,6 @@ public class InputManager : MonoBehaviour
 
     void Update()
     {
-        useKinect = sensor != null && sensor.IsAvailable;
-
         if (useKinect)
         {
             UpdateKinect();
@@ -45,36 +72,160 @@ public class InputManager : MonoBehaviour
         GameManager.Instance.UpdateHand();
     }
 
+    // return ths detected skill id
+    Skill ProcessBody(Body body)
+    {
+        var joints = body.Joints;
+
+        var leftHand = joints[JointType.HandLeft].Position;
+        var rightHand = joints[JointType.HandRight].Position;
+        var leftShoulder = joints[JointType.ShoulderLeft].Position;
+        var rightShoulder = joints[JointType.ShoulderRight].Position;
+        var leftElbow = joints[JointType.ElbowLeft].Position;
+        var rightElbow = joints[JointType.ElbowRight].Position;
+        var shoulder = joints[JointType.SpineShoulder].Position;
+
+        bool use3D = true;
+
+        Vector3 leftHandPos = new Vector3(leftHand.X, leftHand.Y, use3D ? leftHand.Z : 0);
+        Vector3 rightHandPos = new Vector3(rightHand.X, rightHand.Y, use3D ? rightHand.Z : 0);
+        Vector3 leftShoulderPos = new Vector3(leftShoulder.X, leftShoulder.Y, use3D ? leftShoulder.Z : 0);
+        Vector3 rightShoulderPos = new Vector3(rightShoulder.X, rightShoulder.Y, use3D ? rightShoulder.Z : 0);
+        Vector3 leftElbowPos = new Vector3(leftElbow.X, leftElbow.Y, use3D ? leftElbow.Z : 0);
+        Vector3 rightElbowPos = new Vector3(rightElbow.X, rightElbow.Y, use3D ? rightElbow.Z : 0);
+        Vector3 shoulderPos = new Vector3(shoulder.X, shoulder.Y, use3D ? shoulder.Z : 0);
+
+        // 同步手的位置至GM
+        var leftHandPos2D = leftHandPos;
+        var rightHandPos2D = rightHandPos;
+        leftHandPos2D.z = rightHandPos2D.z = 0;
+        GameManager.Instance.leftHand = leftHandPos2D * displayMagnification;
+        GameManager.Instance.rightHand = rightHandPos2D * displayMagnification;
+
+        // 偵測技能
+        Vector3 upVec = new Vector3(0, 1, 0);
+        Vector3 leftVec = use3D ? leftShoulderPos - shoulderPos : new Vector3(-1, 0, 0);
+        Vector3 rightVec = use3D ? rightShoulderPos - shoulderPos : new Vector3(1, 0, 0);
+        if (use3D)
+        {
+            leftVec.Normalize();
+            rightVec.Normalize();
+        }
+        Vector3 leftUpVec = use3D ? leftVec + upVec : new Vector3(-1, 1, 0);
+        Vector3 rightUpVec = use3D ? rightVec + upVec : new Vector3(1, 1, 0);
+
+        Vector3 leftUpperArm = leftElbowPos - leftShoulderPos;
+        Vector3 rightUpperArm = rightElbowPos - rightShoulderPos;
+        Vector3 leftForearm = leftHandPos - leftElbowPos;
+        Vector3 rightForearm = rightHandPos - rightElbowPos;
+
+        float leftElbowAngel = Vector3.Angle(leftUpperArm, leftForearm);
+        float rightElbowAngel = Vector3.Angle(rightUpperArm, rightForearm);
+        float leftShoulderAngelUp = Vector3.Angle(leftUpperArm, upVec);
+        float leftShoulderAngelDiagonal = Vector3.Angle(leftUpperArm, leftUpVec);
+        float leftShoulderAngelHorizontal = Vector3.Angle(leftUpperArm, leftVec);
+        float rightShoulderAngelUp = Vector3.Angle(rightUpperArm, upVec);
+        float rightShoulderAngelDiagonal = Vector3.Angle(rightUpperArm, rightUpVec);
+        float rightShoulderAngelHorizontal = Vector3.Angle(rightUpperArm, rightVec);
+
+        string debugText = $"Elbow Angel: [{leftElbowAngel}, {rightElbowAngel}]\n" +
+                                $"Shoulder Angel: Up:[{leftShoulderAngelUp}, {rightShoulderAngelUp}]\n" +
+                                $"\tDiagonal:[{leftShoulderAngelDiagonal}, {rightShoulderAngelDiagonal}]\n" +
+                                $"\tHorizontal[{leftShoulderAngelHorizontal}, {rightShoulderAngelHorizontal}]\n";
+        Skill currentSkill = Skill.None;
+        // 雙手打直
+        if (leftElbowAngel < skillThresholdBig && rightElbowAngel < skillThresholdBig)
+        {
+            // skill 1 波動拳
+            if (Vector3.Angle(leftUpperArm, rightUpperArm) < skillThresholdBig)
+            {
+                if (Vector3.Angle(leftUpperArm, new Vector3(-1, 0, 0)) < skillThresholdBig ||
+                   Vector3.Angle(rightUpperArm, new Vector3(-1, 0, 0)) < skillThresholdBig)
+                {
+                    debugText += "Skill: Hadoken(L)!\n";
+                    currentSkill = Skill.HadokenLeft;
+                }
+                if (Vector3.Angle(leftUpperArm, new Vector3(1, 0, 0)) < skillThresholdBig ||
+                    Vector3.Angle(rightUpperArm, new Vector3(1, 0, 0)) < skillThresholdBig)
+                {
+                    debugText += "Skill: Hadoken(R)!\n";
+                    currentSkill = Skill.HadokenRight;
+                }
+            }
+            // skill 2 爆炸
+            if (leftShoulderAngelDiagonal < skillThresholdSmall && rightShoulderAngelDiagonal < skillThresholdSmall)
+            {
+                debugText += "Skill: Explotion!\n";
+                currentSkill = Skill.Explotion;
+            }
+        }
+        // skill 3 電蚊拍
+        if (Math.Abs(leftElbowAngel - 90) < skillThresholdBig && rightElbowAngel < skillThresholdBig &&
+            leftShoulderAngelUp < skillThresholdBig && rightShoulderAngelUp < skillThresholdBig)
+        {
+            debugText += "Skill: Electric Mosquito Swatter!\n";
+            currentSkill = Skill.Swatter;
+        }
+        UIManager.Instance.DebugLabel2.text = debugText;
+        return currentSkill;        
+    }
+
     void UpdateKinect()
     {
-        if (bodyReader == null) return;
+        if (bodyReader == null)
+        {
+            return;
+        }
 
         var frame = bodyReader.AcquireLatestFrame();
-        if (frame == null) return;
+        if (frame == null)
+        {
+            return;
+        }
 
         frame.GetAndRefreshBodyData(bodies);
 
-        //for(int i=1;i< sensor.BodyFrameSource.BodyCount; i++)
-        //{
-        //    bodies[i] = null;   // 嚙褓堆蕭嚙踝蕭嚙瑾嚙瘡
-        //}
+        Body mainBody = null;
 
         foreach (var body in bodies)
         {
-            if (body == null) continue;
-            if (!body.IsTracked) continue;
+            if (body == null || !body.IsTracked) continue;
 
-            var joints = body.Joints;
+            if (lockedId == 0)
+                lockedId = body.TrackingId;
 
-            var leftHand = joints[JointType.HandLeft].Position;
-            var rightHand = joints[JointType.HandRight].Position;
-
-            Vector3 leftHandPos = new Vector3(leftHand.X, leftHand.Y, leftHand.Z);
-            GameManager.Instance.leftHand = leftHandPos * 10f;
-
-            Vector3 rightHandPos = new Vector3(rightHand.X, rightHand.Y, rightHand.Z);
-            GameManager.Instance.rightHand = rightHandPos * 10f;
+            if (body.TrackingId == lockedId)
+            {
+                mainBody = body;
+                break;
+            }
         }
+
+        Skill currentSkill = Skill.None;
+        if (mainBody == null)
+        {
+            currentSkillRemainingFrame = 0;
+        }
+        else
+        {
+            currentSkill = ProcessBody(mainBody);
+        }
+
+        // 處理技能釋放
+        if (currentSkill == prevSkill)
+        {
+            currentSkillRemainingFrame++;
+            if (currentSkillRemainingFrame == minSkillRemainingFrame)
+            {
+                DetectedSkill?.Invoke((int)currentSkill);
+            }
+        }
+        else
+        {
+            currentSkillRemainingFrame = 0;
+        }
+        Debug.Log(currentSkillRemainingFrame);
+        prevSkill = currentSkill;
 
         frame.Dispose();
     }
@@ -82,8 +233,8 @@ public class InputManager : MonoBehaviour
     void UpdateMouse()
     {
         Vector3 pos = new Vector3(
-            (Input.mousePosition.x / Screen.width-0.5f) * 19.8f,
-            (Input.mousePosition.y / Screen.height-0.5f) * 10,
+            (Input.mousePosition.x / Screen.width - 0.5f) * 19.8f,
+            (Input.mousePosition.y / Screen.height - 0.5f) * 10,
             0
         );
 
@@ -101,6 +252,14 @@ public class InputManager : MonoBehaviour
         {
             GameManager.Instance.leftHand = pos - offset;
             GameManager.Instance.rightHand = pos + offset;
+        }
+
+        for (int i = 0; i < 4; i++)
+        {
+            if (Input.GetKeyDown(KeyCode.Alpha1+i))
+            {
+                DetectedSkill?.Invoke(1+i);
+            }
         }
     }
 }
