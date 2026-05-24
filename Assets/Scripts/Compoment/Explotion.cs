@@ -1,44 +1,48 @@
+using Assets.Scripts.Manager;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Explotion : MonoBehaviour
+namespace Assets.Scripts.Compoment
 {
-    int counter = 0;
-    bool show = false;
-
-    // Start is called before the first frame update
-    void Start()
+    public class Explotion : MonoBehaviour
     {
-        GetComponent<Renderer>().enabled = false;
-    }
+        int counter = 0;
+        bool show = false;
 
-    // Update is called once per frame
-    void Update()
-    {
-        if (counter > 0) counter--;
-        else if (show)
+        // Start is called before the first frame update
+        void Start()
         {
-            GetComponent<Renderer>().enabled = show = false;
+            GetComponent<Renderer>().enabled = false;
         }
-    }
 
-    void OnEnable()
-    {
-        GameManager.OnHandClap += OnHandClap;
-    }
+        // Update is called once per frame
+        void Update()
+        {
+            if (counter > 0) counter--;
+            else if (show)
+            {
+                GetComponent<Renderer>().enabled = show = false;
+            }
+        }
 
-    void OnDisable()
-    {
-        GameManager.OnHandClap -= OnHandClap;
-    }
+        void OnEnable()
+        {
+            GameManager.OnHandClap += OnHandClap;
+        }
 
-    void OnHandClap()
-    {
-        Vector3 pos = (GameManager.Instance.leftHand + GameManager.Instance.rightHand) / 2;
-        pos.z = 0;
-        transform.position = pos;
-        GetComponent<Renderer>().enabled = show = true;
-        counter = 60;   // show 1 sec
+        void OnDisable()
+        {
+            GameManager.OnHandClap -= OnHandClap;
+        }
+
+        void OnHandClap()
+        {
+            Vector3 pos = (GameManager.Instance.leftHand + GameManager.Instance.rightHand) / 2;
+            pos.z = 0;
+            transform.position = pos;
+            GetComponent<Renderer>().enabled = show = true;
+            counter = 60;   // show 1 sec
+        }
     }
 }
