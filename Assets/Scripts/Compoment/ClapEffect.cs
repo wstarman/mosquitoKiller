@@ -1,7 +1,7 @@
 using UnityEngine;
 
 [RequireComponent(typeof(Collider2D))]
-public class Explotion : MonoBehaviour
+public class ClapEffect : MonoBehaviour
 {
     int counter = 0;
     bool show = false;
@@ -18,7 +18,7 @@ public class Explotion : MonoBehaviour
         _collider.enabled = false;
 
         _playingScale = transform.localScale;
-        _cursorScale = _playingScale / 2.5f;
+        _cursorScale = _playingScale;
     }
 
     // Update is called once per frame
