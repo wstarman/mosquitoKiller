@@ -56,7 +56,7 @@ public class GameManager : MonoBehaviour
 
         bool isCursor = GameStateManager.Instance == null ||
                         GameStateManager.Instance.CurrentState != GameState.Playing;
-        float clapDist  = isCursor ? CursorClapDistance  : PlayingClapDistance;
+        float clapDist = isCursor ? CursorClapDistance : PlayingClapDistance;
         float resetDist = isCursor ? CursorResetDistance : PlayingResetDistance;
 
         if (distance < clapDist)
