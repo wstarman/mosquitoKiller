@@ -8,7 +8,7 @@ public class UIManager : MonoBehaviour
     public Text DebugLabel;
     public Text DebugLabel2;
 
-    bool _debugVisible = false;
+    bool _debugVisible = false;//
     int currentSId = 0;
 
     void Awake()
