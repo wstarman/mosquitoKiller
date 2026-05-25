@@ -6,8 +6,10 @@ public class UIManager : MonoBehaviour
     public static UIManager Instance { get; private set; }
 
     public Text DebugLabel;
+    public Text DebugLabel2;
 
     bool _debugVisible = false;
+    int currentSId = 0;
 
     void Awake()
     {
@@ -16,8 +18,9 @@ public class UIManager : MonoBehaviour
 
         GameStateManager.OnStateChanged += HandleStateChanged;
 
-        if (DebugLabel != null)
-            DebugLabel.gameObject.SetActive(false);
+        DebugLabel.gameObject.SetActive(true);
+        DebugLabel2.gameObject.SetActive(true);
+        GameManager.SkillReleased += OnSkillReleased;
     }
 
     void OnDestroy()
@@ -39,7 +42,8 @@ public class UIManager : MonoBehaviour
     void RefreshDebugVisibility(GameState state)
     {
         if (DebugLabel == null) return;
-        DebugLabel.gameObject.SetActive(state == GameState.MainMenu && _debugVisible);
+        DebugLabel.gameObject.SetActive(_debugVisible);
+        DebugLabel2.gameObject.SetActive(_debugVisible);
     }
 
     void Update()
@@ -50,6 +54,13 @@ public class UIManager : MonoBehaviour
         DebugLabel.text = $"Using Device: {(InputManager.useKinect ? "Kinect" : "Mouse")}\n" +
                           $"Left Hand: {GameManager.Instance.leftHand}\n" +
                           $"Right Hand: {GameManager.Instance.rightHand}\n" +
-                          $"Distance: {dis}";
+                          $"Distance: {dis}\n" +
+                          $"Skill: {currentSId}\n";
+    }
+
+    void OnSkillReleased(int sId)
+    {
+        Skill skill = (Skill)sId;
+        this.currentSId = sId;
     }
 }

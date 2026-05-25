@@ -3,6 +3,6 @@
     None,
     HadokenLeft,
     HadokenRight,
-    Explotion,
+    Explosion,
     Swatter
 }
