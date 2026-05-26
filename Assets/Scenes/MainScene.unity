@@ -405,12 +405,11 @@ MonoBehaviour:
   rightHand: {x: 0, y: 0, z: 0}
   distance: 0
   isHandContact: 0
-  ep: 100
-  epCosts: 
   PlayingClapDistance: 1.5
   PlayingResetDistance: 2
   CursorClapDistance: 0.3
   CursorResetDistance: 0.6
+  ClapCooldown: 0.125
 --- !u!4 &180215735
 Transform:
   m_ObjectHideFlags: 0
@@ -471,9 +470,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PhaseDurations:
-  - 5
-  - 5
-  - 5
+  - 3
+  - 3
+  - 3
+  - 3
+  - 3
+  - 3
 --- !u!1 &307569746
 GameObject:
   m_ObjectHideFlags: 0
@@ -1218,6 +1220,53 @@ Transform:
   - {fileID: 1313328887}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &744015529
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 744015530}
+  - component: {fileID: 744015531}
+  m_Layer: 0
+  m_Name: EnergyManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &744015530
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 744015529}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1248539942}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &744015531
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 744015529}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c2c53847f54d0640b72fd54d8837b27, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MaxEP: 100
+  InitialEP: 0
+  SkillCosts: 000000001e0000001e0000003200000064000000
 --- !u!1 &815947136
 GameObject:
   m_ObjectHideFlags: 0
@@ -1274,7 +1323,6 @@ GameObject:
   - component: {fileID: 854938851}
   - component: {fileID: 854938853}
   - component: {fileID: 854938854}
-  - component: {fileID: 854938855}
   - component: {fileID: 854938856}
   m_Layer: 0
   m_Name: clapEffect
@@ -1362,6 +1410,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f37f07af714074448bf9edbf04b2885a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ColliderDuration: 0.1
 --- !u!61 &854938854
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1407,41 +1456,6 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 12.220312, y: 7.2029624}
   m_EdgeRadius: 0
---- !u!58 &854938855
-CircleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 854938850}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  serializedVersion: 2
-  m_Radius: 5
 --- !u!50 &854938856
 Rigidbody2D:
   serializedVersion: 4
@@ -1886,6 +1900,68 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1248539942}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1100903740
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1100903741}
+  - component: {fileID: 1100903742}
+  m_Layer: 0
+  m_Name: MosquitoSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1100903741
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1100903740}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1248539942}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1100903742
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1100903740}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d6175ecd16c266146bb6cc45d0807d02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  EnemyConfigs:
+  - Prefab: {fileID: 6912428277292276354, guid: 4ecc073bdc858664583e10b25b647425, type: 3}
+    UnlockAtPhase: 0
+    BurstCountPerPhase: 010000000200000003000000030000000300000003000000
+    BurstIntervalPerPhase:
+    - 1.5
+    - 3
+    - 3
+    - 3
+    - 2
+    - 3
+    SpawnStagger: 0.3
+    SpawnModePerPhase: 010000000100000001000000010000000100000001000000
+    HPOverride: 0
+  BossPrefab: {fileID: 0}
+  BossSpawnPosition: {x: 0, y: 6, z: 0}
+  EdgeSpawnMargin: 1
+  InsideSpawnMargin: 1
 --- !u!1 &1160127503
 GameObject:
   m_ObjectHideFlags: 0
@@ -2331,6 +2407,8 @@ Transform:
   - {fileID: 1855648104}
   - {fileID: 815947137}
   - {fileID: 555625860}
+  - {fileID: 744015530}
+  - {fileID: 1100903741}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1310800936
@@ -3264,7 +3342,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a7bca095146853408b61fc0f22e301c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PointsPerClap: 67
+  PointsPerClap: 0
 --- !u!1 &1975044438
 GameObject:
   m_ObjectHideFlags: 0
