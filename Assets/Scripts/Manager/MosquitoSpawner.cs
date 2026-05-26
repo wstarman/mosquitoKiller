@@ -69,7 +69,7 @@ public class MosquitoSpawner : MonoBehaviour
             if (_burstTimers[i] <= 0f)
             {
                 _burstTimers[i] = GetInterval(cfg, currentPhase);
-                StartCoroutine(SpawnBurst(cfg));
+                StartCoroutine(SpawnBurst(cfg, currentPhase));
             }
         }
     }
@@ -89,15 +89,25 @@ public class MosquitoSpawner : MonoBehaviour
     {
         if (to == GamePhase.Boss && BossPrefab != null)
             SpawnSingle(BossPrefab, BossSpawnPosition);
+
+        if (to == GamePhase.Transition)
+        {
+            // 轉場開始：停止生成並清除所有敵人
+            _isPlaying = false;
+            DespawnAll();
+        }
     }
 
     // ── 生成邏輯 ──────────────────────────────────────────────────────────
 
-    IEnumerator SpawnBurst(EnemySpawnConfig cfg)
+    IEnumerator SpawnBurst(EnemySpawnConfig cfg, GamePhase phase)
     {
-        for (int i = 0; i < cfg.BurstCount; i++)
+        int count = GetBurstCount(cfg, phase);
+        SpawnMode mode = GetSpawnMode(cfg, phase);
+
+        for (int i = 0; i < count; i++)
         {
-            Vector3 pos = cfg.SpawnMode == SpawnMode.InsideScreen
+            Vector3 pos = mode == SpawnMode.InsideScreen
                 ? RandomInsidePosition()
                 : RandomEdgePosition();
             SpawnSingle(cfg.Prefab, pos, cfg);
@@ -157,6 +167,22 @@ public class MosquitoSpawner : MonoBehaviour
         int idx = (int)phase;
         var arr = cfg.BurstIntervalPerPhase;
         if (arr == null || arr.Length == 0) return 5f;
+        return arr[Mathf.Min(idx, arr.Length - 1)];
+    }
+
+    int GetBurstCount(EnemySpawnConfig cfg, GamePhase phase)
+    {
+        int idx = (int)phase;
+        var arr = cfg.BurstCountPerPhase;
+        if (arr == null || arr.Length == 0) return 1;
+        return arr[Mathf.Min(idx, arr.Length - 1)];
+    }
+
+    SpawnMode GetSpawnMode(EnemySpawnConfig cfg, GamePhase phase)
+    {
+        int idx = (int)phase;
+        var arr = cfg.SpawnModePerPhase;
+        if (arr == null || arr.Length == 0) return SpawnMode.FromEdge;
         return arr[Mathf.Min(idx, arr.Length - 1)];
     }
 

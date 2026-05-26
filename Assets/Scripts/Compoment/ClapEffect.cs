@@ -48,11 +48,25 @@ public class ClapEffect : MonoBehaviour
     void OnEnable()
     {
         GameManager.OnHandClap += OnHandClap;
+        GamePhaseManager.OnPhaseChanged += OnPhaseChanged;
     }
 
     void OnDisable()
     {
         GameManager.OnHandClap -= OnHandClap;
+        GamePhaseManager.OnPhaseChanged -= OnPhaseChanged;
+    }
+
+    void OnPhaseChanged(GamePhase from, GamePhase to)
+    {
+        if (to != GamePhase.Transition) return;
+
+        // 轉場開始：強制關閉視覺與碰撞箱
+        GetComponent<Renderer>().enabled = false;
+        _show = false;
+        _visualCounter = 0;
+        _collider.enabled = false;
+        _colliderTimer = 0f;
     }
 
     void OnHandClap()

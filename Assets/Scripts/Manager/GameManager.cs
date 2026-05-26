@@ -63,6 +63,10 @@ public class GameManager : MonoBehaviour
 
         if (_clapCooldownTimer > 0f) _clapCooldownTimer -= Time.deltaTime;
 
+        // 轉場期間禁止拍手事件（僅限 Playing 狀態；CurrentPhase 離開 Playing 後不會重置）
+        if (GameStateManager.Instance?.CurrentState == GameState.Playing &&
+            GamePhaseManager.Instance?.CurrentPhase == GamePhase.Transition) return;
+
         bool isCursor = GameStateManager.Instance == null ||
                         GameStateManager.Instance.CurrentState != GameState.Playing;
         float clapDist = isCursor ? CursorClapDistance : PlayingClapDistance;
