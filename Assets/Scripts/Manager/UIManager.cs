@@ -20,7 +20,7 @@ public class UIManager : MonoBehaviour
 
         DebugLabel.gameObject.SetActive(true);
         DebugLabel2.gameObject.SetActive(true);
-        GameManager.SkillReleased += OnSkillReleased;
+        EnergyManager.OnSkillActivated += OnSkillReleased;
     }
 
     void OnDestroy()
