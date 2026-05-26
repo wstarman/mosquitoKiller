@@ -20,7 +20,13 @@ public class GameManager : MonoBehaviour
     public float CursorClapDistance = 0.3f;
     public float CursorResetDistance = 0.6f;
 
+    [Header("Clap Cooldown")]
+    [Tooltip("拍手事件發出後的冷卻時間（秒），防止切換場景時誤觸新按鈕")]
+    public float ClapCooldown = 0.125f;
+
     public static event Action OnHandClap;
+
+    float _clapCooldownTimer = 0f;
 
     void Awake()
     {
@@ -55,6 +61,8 @@ public class GameManager : MonoBehaviour
     {
         distance = (leftHand - rightHand).magnitude;
 
+        if (_clapCooldownTimer > 0f) _clapCooldownTimer -= Time.deltaTime;
+
         bool isCursor = GameStateManager.Instance == null ||
                         GameStateManager.Instance.CurrentState != GameState.Playing;
         float clapDist = isCursor ? CursorClapDistance : PlayingClapDistance;
@@ -62,9 +70,10 @@ public class GameManager : MonoBehaviour
 
         if (distance < clapDist)
         {
-            if (!isHandContact)
+            if (!isHandContact && _clapCooldownTimer <= 0f)
             {
                 OnHandClap?.Invoke();
+                _clapCooldownTimer = ClapCooldown;
             }
             isHandContact = true;
         }
