@@ -19,8 +19,10 @@ public class MosquitoSpawner : MonoBehaviour
     public Vector3 BossSpawnPosition = new(0, 6f, 0);
 
     [Header("生成位置")]
-    [Tooltip("敵人從此半徑的邊緣隨機角度出現")]
-    public float SpawnRadius = 9f;
+    [Tooltip("FromEdge 模式：超出相機邊界外的距離")]
+    public float EdgeSpawnMargin = 1f;
+    [Tooltip("InsideScreen 模式：距相機邊界的安全內縮距離")]
+    public float InsideSpawnMargin = 1f;
 
     // ── 內部狀態 ──────────────────────────────────────────────────────────
 
@@ -66,8 +68,7 @@ public class MosquitoSpawner : MonoBehaviour
             _burstTimers[i] -= Time.deltaTime;
             if (_burstTimers[i] <= 0f)
             {
-                float interval = GetInterval(cfg, currentPhase);
-                _burstTimers[i] = interval;
+                _burstTimers[i] = GetInterval(cfg, currentPhase);
                 StartCoroutine(SpawnBurst(cfg));
             }
         }
@@ -96,7 +97,10 @@ public class MosquitoSpawner : MonoBehaviour
     {
         for (int i = 0; i < cfg.BurstCount; i++)
         {
-            SpawnSingle(cfg.Prefab, RandomEdgePosition(), cfg);
+            Vector3 pos = cfg.SpawnMode == SpawnMode.InsideScreen
+                ? RandomInsidePosition()
+                : RandomEdgePosition();
+            SpawnSingle(cfg.Prefab, pos, cfg);
             if (cfg.SpawnStagger > 0f)
                 yield return new WaitForSeconds(cfg.SpawnStagger);
         }
@@ -118,10 +122,34 @@ public class MosquitoSpawner : MonoBehaviour
         }
     }
 
+    // 從畫面外四邊隨機一邊生成
     Vector3 RandomEdgePosition()
     {
-        float angle = Random.Range(0f, Mathf.PI * 2f);
-        return new Vector3(Mathf.Cos(angle), Mathf.Sin(angle), 0f) * SpawnRadius;
+        Camera cam = Camera.main;
+        float halfH = cam.orthographicSize + EdgeSpawnMargin;
+        float halfW = halfH * cam.aspect + EdgeSpawnMargin;
+
+        return Random.Range(0, 4) switch
+        {
+            0 => new Vector3(Random.Range(-halfW, halfW),  halfH, 0f), // 上
+            1 => new Vector3(Random.Range(-halfW, halfW), -halfH, 0f), // 下
+            2 => new Vector3(-halfW, Random.Range(-halfH, halfH), 0f), // 左
+            _ => new Vector3( halfW, Random.Range(-halfH, halfH), 0f), // 右
+        };
+    }
+
+    // 在畫面內隨機位置生成
+    Vector3 RandomInsidePosition()
+    {
+        Camera cam = Camera.main;
+        float halfH = cam.orthographicSize - InsideSpawnMargin;
+        float halfW = halfH * cam.aspect - InsideSpawnMargin;
+
+        return new Vector3(
+            Random.Range(-halfW, halfW),
+            Random.Range(-halfH, halfH),
+            0f
+        );
     }
 
     float GetInterval(EnemySpawnConfig cfg, GamePhase phase)

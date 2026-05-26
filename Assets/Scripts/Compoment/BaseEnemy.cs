@@ -16,8 +16,8 @@ public abstract class BaseEnemy : MonoBehaviour
     public int MaxHP = 1;
     [Tooltip("死亡得分，負值代表扣分（如吃瓜蝴蝶）")]
     public int PointsOnDeath = 100;
-    [Tooltip("死亡時給予的充能量")]
-    public float EnergyOnDeath = 1f;
+    [Tooltip("死亡時給予的充能量（EP）")]
+    public int EnergyOnDeath = 10;
 
     protected int CurrentHP { get; private set; }
     protected bool IsAlive => CurrentHP > 0;
