@@ -35,11 +35,21 @@ public class ClapEffect : MonoBehaviour
     void OnEnable()
     {
         GameManager.OnHandClap += OnHandClap;
+        GameStateManager.OnStateChanged += OnStateChanged;
     }
 
     void OnDisable()
     {
         GameManager.OnHandClap -= OnHandClap;
+        GameStateManager.OnStateChanged -= OnStateChanged;
+    }
+
+    void OnStateChanged(GameState from, GameState to)
+    {
+        // 切換狀態時立刻隱藏，避免殘留 collider 觸發新場景的按鈕
+        counter = 0;
+        GetComponent<Renderer>().enabled = false;
+        _collider.enabled = show = false;
     }
 
     void OnHandClap()
