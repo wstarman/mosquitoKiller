@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: -3398861040336976641}
   - component: {fileID: 6832397652319968498}
   m_Layer: 0
-  m_Name: Mosquito_1
+  m_Name: NormalMosquito
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -180,11 +180,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 6912428277292276354}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ac11c89d8528c4f44bb0c4c30cbf46e7, type: 3}
+  m_Script: {fileID: 11500000, guid: 3749be7e6c67d4249a003b649ccb6c4c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   MaxHP: 1
   PointsOnDeath: 100
   EnergyOnDeath: 10
-  MoveSpeed: 4.5
-  EdgeMargin: 0.5
+  ScoreValue: 100
+  StingScorePenalty: 20
+  MoveSpeed: 2
+  WanderChangeInterval: 1.5
+  WanderDuration: 4
+  PrepareAttackSpeed: 0.2
+  AttackWindupDuration: 2
+  AttackScaleMultiplier: 3
+  AttackZoomInDuration: 0.5
+  AttackZoomOutDuration: 0.8

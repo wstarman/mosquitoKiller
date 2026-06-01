@@ -24,6 +24,10 @@ public class MosquitoSpawner : MonoBehaviour
     [Tooltip("InsideScreen 模式：距相機邊界的安全內縮距離")]
     public float InsideSpawnMargin = 1f;
 
+    [Header("生成上限")]
+    [Tooltip("場上同時存在的敵人上限（不含 Boss）")]
+    public int MaxCount = 20;
+
     // ── 內部狀態 ──────────────────────────────────────────────────────────
 
     bool _isPlaying;
@@ -33,6 +37,8 @@ public class MosquitoSpawner : MonoBehaviour
     readonly Dictionary<GameObject, Queue<GameObject>> _pools = new();
     // instance → 來源 prefab，供 ReturnToPool 使用
     readonly Dictionary<GameObject, GameObject> _instanceToPrefab = new();
+    // 追蹤目前場上活躍的非 Boss 敵人數量
+    int _activeEnemyCount;
 
     // ── Unity 生命週期 ────────────────────────────────────────────────────
 
@@ -80,15 +86,20 @@ public class MosquitoSpawner : MonoBehaviour
     {
         _isPlaying = to == GameState.Playing;
         if (to == GameState.Playing)
+        {
             _burstTimers = new float[EnemyConfigs.Length];
+            _activeEnemyCount = 0;
+        }
         else
+        {
             DespawnAll();
+        }
     }
 
     void OnPhaseChanged(GamePhase from, GamePhase to)
     {
         if (to == GamePhase.Boss && BossPrefab != null)
-            SpawnSingle(BossPrefab, BossSpawnPosition);
+            SpawnSingle(BossPrefab, BossSpawnPosition, isBoss: true);
 
         if (to == GamePhase.Transition)
         {
@@ -107,24 +118,32 @@ public class MosquitoSpawner : MonoBehaviour
 
         for (int i = 0; i < count; i++)
         {
+            // 達到場上上限則中止本次 burst
+            if (_activeEnemyCount >= MaxCount) yield break;
+
             Vector3 pos = mode == SpawnMode.InsideScreen
                 ? RandomInsidePosition()
                 : RandomEdgePosition();
-            SpawnSingle(cfg.Prefab, pos, cfg);
+            SpawnSingle(cfg.Prefab, pos, cfg: cfg);
+
             if (cfg.SpawnStagger > 0f)
                 yield return new WaitForSeconds(cfg.SpawnStagger);
         }
     }
 
-    void SpawnSingle(GameObject prefab, Vector3 position, EnemySpawnConfig cfg = null)
+    /// <param name="isBoss">Boss 不計入 MaxCount 上限</param>
+    void SpawnSingle(GameObject prefab, Vector3 position, EnemySpawnConfig cfg = null, bool isBoss = false)
     {
         if (prefab == null) return;
+        if (!isBoss && _activeEnemyCount >= MaxCount) return;
 
         var go = GetFromPool(prefab);
         go.transform.position = position;
         go.SetActive(true);
 
-        var enemy = go.GetComponent<BaseEnemy>();
+        if (!isBoss) _activeEnemyCount++;
+
+        var enemy = go.GetComponent<MosquitoBase>();
         if (enemy != null)
         {
             if (cfg != null && cfg.HPOverride > 0) enemy.MaxHP = cfg.HPOverride;
@@ -202,9 +221,12 @@ public class MosquitoSpawner : MonoBehaviour
         return go;
     }
 
-    public void ReturnToPool(GameObject go)
+    public void ReturnToPool(GameObject go, bool isBoss = false)
     {
         go.SetActive(false);
+
+        if (!isBoss) _activeEnemyCount = Mathf.Max(0, _activeEnemyCount - 1);
+
         if (_instanceToPrefab.TryGetValue(go, out var prefab) && _pools.ContainsKey(prefab))
             _pools[prefab].Enqueue(go);
         else
@@ -214,10 +236,11 @@ public class MosquitoSpawner : MonoBehaviour
     void DespawnAll()
     {
         StopAllCoroutines();
-        foreach (var enemy in FindObjectsByType<BaseEnemy>(FindObjectsSortMode.None))
+        foreach (var enemy in FindObjectsByType<MosquitoBase>(FindObjectsSortMode.None))
         {
             enemy.OnDespawn();
             ReturnToPool(enemy.gameObject);
         }
+        _activeEnemyCount = 0;
     }
 }

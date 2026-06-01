@@ -31,8 +31,8 @@ public class GamePhaseManager : MonoBehaviour
         if (!_isPlaying) return;
 
         _timer -= Time.deltaTime;
-        if (_timer <= 0f)
-            NextPhase();
+        //if (_timer <= 0f)
+        //    NextPhase();
     }
 
     void HandleStateChanged(GameState from, GameState to)
