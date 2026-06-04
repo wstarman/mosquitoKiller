@@ -2007,6 +2007,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 428082463}
     m_Modifications:
+    - target: {fileID: 523796284560760028, guid: 88171ec0565599c4ca660b4a95b287f2, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 1da0970812a48544ab8ae285e8d54440, type: 3}
+    - target: {fileID: 951155971454259347, guid: 88171ec0565599c4ca660b4a95b287f2, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 2e431686974cd0444a86932335fa2eda, type: 3}
+    - target: {fileID: 3137502426817817786, guid: 88171ec0565599c4ca660b4a95b287f2, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: e1dca0340b3894441bba67fa549a57d8, type: 3}
     - target: {fileID: 3658877255498430544, guid: 88171ec0565599c4ca660b4a95b287f2, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -2099,6 +2111,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: GamePanel
       objectReference: {fileID: 0}
+    - target: {fileID: 4958495642478197740, guid: 88171ec0565599c4ca660b4a95b287f2, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 1da0970812a48544ab8ae285e8d54440, type: 3}
+    - target: {fileID: 5113105658645550029, guid: 88171ec0565599c4ca660b4a95b287f2, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 20804f7e08d20cd4ca913634f73ceff7, type: 3}
+    - target: {fileID: 5829116765941563549, guid: 88171ec0565599c4ca660b4a95b287f2, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 1da0970812a48544ab8ae285e8d54440, type: 3}
     - target: {fileID: 7424088154833970142, guid: 88171ec0565599c4ca660b4a95b287f2, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
