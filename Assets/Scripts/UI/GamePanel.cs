@@ -12,12 +12,14 @@ public class GamePanel : BasePanel
     {
         base.Awake();
         GamePhaseManager.OnPhaseChanged += HandlePhaseChanged;
+        InputManager.DetectedPose += HandlePose;
     }
 
     protected override void OnDestroy()
     {
         base.OnDestroy();
         GamePhaseManager.OnPhaseChanged -= HandlePhaseChanged;
+        InputManager.DetectedPose -= HandlePose;
     }
 
     void Update()
@@ -30,5 +32,21 @@ public class GamePanel : BasePanel
     {
         if (PhaseLabel != null)
             PhaseLabel.text = $"Phase: {to}";
+    }
+
+    void HandlePose(int sid)
+    {
+        Skill skill = (Skill)sid;
+        switch (skill)
+        {
+            // TODO: Highlight the skill
+            case Skill.HadokenLeft:
+            case Skill.HadokenRight:
+                break;
+            case Skill.Explosion:
+                break;
+            case Skill.Swatter:
+                break;
+        }
     }
 }

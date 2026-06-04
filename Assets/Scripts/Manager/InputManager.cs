@@ -16,12 +16,13 @@ public class InputManager : MonoBehaviour
     readonly float displayMagnification = 10f;
     readonly float skillThresholdBig = 40f;     // �ޯ�P�_�i�e�\���~�t(����)
     readonly float skillThresholdSmall = 25f;   // ���p���~�t�A�ثe�ȥΩ��z����ժ��W���u����
-    readonly int minSkillRemainingFrame = 5; // �ޯ�ݫ���Q�����h�ִV�~�|����
+    readonly int minSkillRemainingFrame = 30; // �ޯ�ݫ���Q�����h�ִV�~�|����
 
     int currentSkillRemainingFrame = 0;
     Skill prevSkill = Skill.None;
 
     public static event Action<int> DetectedSkill;
+    public static event Action<int> DetectedPose;
 
     void Awake()
     {
@@ -189,6 +190,7 @@ public class InputManager : MonoBehaviour
 
         Body mainBody = null;
 
+        bool hasTrackedBody = false;
         foreach (var body in bodies)
         {
             if (body == null || !body.IsTracked) continue;
@@ -199,9 +201,12 @@ public class InputManager : MonoBehaviour
             if (body.TrackingId == lockedId)
             {
                 mainBody = body;
+                hasTrackedBody = true;
                 break;
             }
         }
+        if (!hasTrackedBody)
+            lockedId = 0;
 
         Skill currentSkill = Skill.None;
         if (mainBody == null)
@@ -227,6 +232,7 @@ public class InputManager : MonoBehaviour
             currentSkillRemainingFrame = 0;
         }
         prevSkill = currentSkill;
+        DetectedPose?.Invoke((int)currentSkill);
 
         frame.Dispose();
     }
