@@ -79,7 +79,7 @@ public class ClapEffect : MonoBehaviour
                          GameStateManager.Instance.CurrentState == GameState.Playing;
 
         transform.localScale = isPlaying ? _playingScale : _cursorScale;
-        _visualCounter = isPlaying ? 60 : 18;   // playing: 1 sec, cursor: 0.3 sec
+        _visualCounter = isPlaying ? 15 : 15;   // playing: 0.5 sec, cursor: 0.3 sec
 
         // 視覺顯示
         GetComponent<Renderer>().enabled = true;

@@ -50,6 +50,21 @@ public class EnergyManager : MonoBehaviour
         CurrentEP -= SkillCosts[sId];
         OnEnergyChanged?.Invoke((float)CurrentEP / MaxEP);
         OnSkillActivated?.Invoke(sId);
+        // TODO: Maybe move these into skill mgr
+        switch ((Skill)sId)
+        {
+            case Skill.HadokenLeft:
+            case Skill.HadokenRight:
+                AudioManager.Instance.PlaySFX("hadouken");
+                break;
+            case Skill.Explosion:
+                AudioManager.Instance.PlaySFX("explosion");
+                break;
+            case Skill.Swatter:
+                AudioManager.Instance.PlaySFX("swatter");
+                break;
+        }
+        
         return true;
     }
 

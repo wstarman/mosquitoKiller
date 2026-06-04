@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -27,6 +28,7 @@ public class GameManager : MonoBehaviour
     public static event Action OnHandClap;
 
     float _clapCooldownTimer = 0f;
+    System.Random r = new System.Random();
 
     void Awake()
     {
@@ -77,6 +79,7 @@ public class GameManager : MonoBehaviour
             if (!isHandContact && _clapCooldownTimer <= 0f)
             {
                 OnHandClap?.Invoke();
+                AudioManager.Instance.PlaySFX($"clap{r.Next(1,6)}");
                 _clapCooldownTimer = ClapCooldown;
             }
             isHandContact = true;

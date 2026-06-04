@@ -77,6 +77,7 @@ public abstract class MosquitoBase : MonoBehaviour
     /// <summary>初始化移動方向、HP，並訂閱遊戲狀態事件。</summary>
     protected virtual void Start()
     {
+        _baseScale = transform.localScale;
         _moveDir = Random.insideUnitCircle.normalized;
         _wanderTimer = WanderChangeInterval;
         _wanderDuration = 0f;
@@ -224,6 +225,7 @@ public abstract class MosquitoBase : MonoBehaviour
     /// <summary>HP 歸零時呼叫。預設行為：加分、充能、回收到 Pool。覆寫時如需保留預設行為請呼叫 base.OnDeath()。</summary>
     protected virtual void OnDeath(DamageSource source)
     {
+        AudioManager.Instance.PlaySFX("Blood_Hit");
         ScoreManager.Instance?.Add(
             _state == MosquitoState.Attacking
                 ? (int)(ScoreValue * 1.5f)   // Parry bonus (x1.5)
@@ -302,6 +304,7 @@ public abstract class MosquitoBase : MonoBehaviour
     protected void ReturnToPool()
     {
         OnDespawn();
+        transform.localScale = _baseScale;
         MosquitoSpawner.Instance?.ReturnToPool(gameObject);
     }
 }
