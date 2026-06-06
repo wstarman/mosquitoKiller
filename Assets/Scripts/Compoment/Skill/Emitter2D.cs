@@ -21,23 +21,26 @@ public class Emitter2D : MonoBehaviour
     {
         Debug.Log($"收到技能發動訊號！技能 ID: {sId}");
 
-        if (hadokenPrefab == null)
-        {
-            Debug.LogError("你沒有把波動拳的 Prefab 拖給發射器！");
-            return;
-        }
+        if (hadokenPrefab == null) return;
 
-        if (sId == (int)Skill.HadokenLeft)
+        // 判斷是否為波動拳相關技能
+        if (sId == (int)Skill.HadokenLeft || sId == (int)Skill.HadokenRight)
         {
-            Vector3 spawnPos = GameManager.Instance != null ? GameManager.Instance.leftHand : transform.position;
-            Instantiate(hadokenPrefab, spawnPos, Quaternion.identity);
-            Debug.Log("發射左手波動拳！座標：" + spawnPos);
-        }
-        else if (sId == (int)Skill.HadokenRight)
-        {
-            Vector3 spawnPos = GameManager.Instance != null ? GameManager.Instance.rightHand : transform.position;
-            Instantiate(hadokenPrefab, spawnPos, Quaternion.identity);
-            Debug.Log("發射右手波動拳！座標：" + spawnPos);
+            // 1. 決定座標
+            Vector3 spawnPos = (sId == (int)Skill.HadokenLeft) 
+                ? GameManager.Instance.leftHand 
+                : GameManager.Instance.rightHand;
+
+            // 2. 生成物件
+            GameObject go = Instantiate(hadokenPrefab, spawnPos, Quaternion.identity);
+            
+            // 3. --- 關鍵修正：呼叫 Initialize ---
+            Hadoken2DScript script = go.GetComponent<Hadoken2DScript>();
+            if (script != null)
+            {
+                script.Initialize(sId); // 把正確的 ID 傳進去，它才會正確設定 _handType
+                Debug.Log($"成功將技能 ID {sId} 傳給波動拳腳本");
+            }
         }
     }
 }

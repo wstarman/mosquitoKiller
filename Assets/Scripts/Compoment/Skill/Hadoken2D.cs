@@ -16,6 +16,11 @@ public class Hadoken2DScript : MonoBehaviour
     public float waveAmplitude = 0.5f;
     public float waveFrequency = 8.0f;
 
+    [Header("爆炸與檢測設定")]
+    public GameObject explosionEffectPrefab; // 拖入爆炸特效
+    public float explosionRadius = 2.0f;     // 爆炸範圍
+    public LayerMask enemyLayer;             // 在 Inspector 勾選 Enemy 層級
+
     private float _timer = 0f;
     private bool _isCharging = true;
     private Vector3 _startPos;
@@ -25,7 +30,16 @@ public class Hadoken2DScript : MonoBehaviour
 
     public void Initialize(int sId)
     {
-        _handType = (sId == (int)Skill.HadokenLeft) ? 0 : 1;
+        // 如果是左手，設為 0
+        if (sId == (int)Skill.HadokenLeft)
+        {
+            _handType = 0;
+        }
+        // 如果是右手，設為 1
+        else if (sId == (int)Skill.HadokenRight)
+        {
+            _handType = 1;
+        }
         _lastHandPos = GetHandPosition();
         transform.localScale = Vector3.one * minScale;
     }
@@ -43,48 +57,28 @@ public class Hadoken2DScript : MonoBehaviour
     void Update()
     {
         if (_isCharging)
-        {
             UpdateCharging();
-        }
         else
-        {
             UpdateFlying();
-        }
     }
 
     void UpdateCharging()
     {
         _timer += Time.deltaTime;
-
         Vector3 currentHandPos = GetHandPosition();
 
-        // 計算發射方向 (動量)
+        // 方向計算 (保底向右)
         Vector3 delta = currentHandPos - _lastHandPos;
-        if (delta.magnitude > 0.01f)
-        {
-            _launchDirection = delta.normalized;
-        }
-        else
-        {
-            // 位移太小或沒動時，預設往右
-            _launchDirection = Vector3.right;
-        }
+        _launchDirection = delta.magnitude > 0.01f ? delta.normalized : Vector3.right;
         _lastHandPos = currentHandPos;
 
-        // 跟隨手部
         transform.position = currentHandPos;
-
-        // 縮放動畫
-        float progress = _timer / chargeDuration;
-        float currentScale = Mathf.Lerp(minScale, maxScale, progress);
-        transform.localScale = Vector3.one * currentScale;
+        transform.localScale = Vector3.one * Mathf.Lerp(minScale, maxScale, _timer / chargeDuration);
 
         if (_timer >= chargeDuration)
         {
             _isCharging = false;
             _startPos = transform.position;
-
-            // 設定飛行方向的旋轉
             float angle = Mathf.Atan2(_launchDirection.y, _launchDirection.x) * Mathf.Rad2Deg;
             transform.rotation = Quaternion.Euler(0, 0, angle);
         }
@@ -92,33 +86,51 @@ public class Hadoken2DScript : MonoBehaviour
 
     void UpdateFlying()
     {
-        // 1. 累加移動距離 (使用 Time.deltaTime)
-        // 讓物件依照發射方向持續移動
-        transform.position += (Vector3)_launchDirection * speed * Time.deltaTime;
+        // 直線位移
+        transform.position += _launchDirection * speed * Time.deltaTime;
 
-        // 2. 波浪效果計算
-        // 我們計算「從發射點開始」過了多久
-        float timeSinceLaunch = Time.time - (_timer + (_timer - _timer)); // 修正計時基準
-
-        // 使用正弦波做位移，將波動拳「推」離中心軸
+        // 波浪效果
         Vector3 right = _launchDirection;
         Vector3 up = new Vector3(-right.y, right.x, 0);
-
         float yOffset = Mathf.Sin(Time.time * waveFrequency) * waveAmplitude;
 
-        // 將位置修正為：原始中心路徑 + 波浪位移
-        // 注意：我們直接在 UpdateFlying 裡持續累加位置，不應該依賴 _startPos 減法
+        // 修正：在 Update 中直接設定位置會覆蓋掉直線位移，改為累加偏移量
+        transform.position += up * (yOffset * Time.deltaTime * waveFrequency);
     }
 
     void OnTriggerEnter2D(Collider2D other)
     {
         if (_isCharging) return;
 
-        MosquitoBase mosquito = other.GetComponent<MosquitoBase>();
-        if (mosquito != null)
+        // 觸發爆炸與傷害邏輯
+        Explode();
+    }
+
+    void Explode()
+    {
+        // 1. 生成特效
+        if (explosionEffectPrefab != null)
+            Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
+
+        // 2. 範圍檢測 (檢測 enemyLayer)
+        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, explosionRadius, enemyLayer);
+        foreach (Collider2D hit in hits)
         {
-            mosquito.TakeDamage(damage, DamageSource.Explosion);
-            Destroy(gameObject);
+            MosquitoBase mosquito = hit.GetComponent<MosquitoBase>();
+            if (mosquito != null)
+            {
+                mosquito.TakeDamage(damage, DamageSource.Explosion);
+            }
         }
+
+        // 3. 銷毀本體
+        Destroy(gameObject);
+    }
+
+    // 在 Unity 中方便除錯看到範圍
+    void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, explosionRadius);
     }
 }
