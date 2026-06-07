@@ -49,6 +49,9 @@ public class NukeSkill : MonoBehaviour
     {
         if (radiationIcon != null)
         {
+
+            GameManager.Instance.isSkillReleasing = true;
+
             radiationIcon.SetActive(true);
             AudioManager.Instance.PlaySFX(alertClipName, 0.05f);
             float duration = alertClipReference != null ? alertClipReference.length : 3.0f;
@@ -88,6 +91,7 @@ public class NukeSkill : MonoBehaviour
 
                     // 2. 造成核爆傷害
                     damageable.TakeDamage(9999, DamageSource.Explosion);
+                    GameManager.Instance.isSkillReleasing = false;
                 }
             }
         }
