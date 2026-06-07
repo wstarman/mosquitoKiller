@@ -37,6 +37,7 @@ public class EnergyManager : MonoBehaviour
     public void AddEnergy(int amount)
     {
         if (GameStateManager.Instance?.CurrentState != GameState.Playing) return;
+        if (GameManager.Instance.isSkillReleasing) return;
         CurrentEP = Mathf.Clamp(CurrentEP + amount, 0, MaxEP);
         OnEnergyChanged?.Invoke((float)CurrentEP / MaxEP);
     }
@@ -45,7 +46,7 @@ public class EnergyManager : MonoBehaviour
     public bool TryUseSkill(int sId)
     {
         if (sId <= 0 || sId >= SkillCosts.Length) return false;
-        if (CurrentEP < SkillCosts[sId]) return false;
+        if (CurrentEP < SkillCosts[sId] || GameManager.Instance.isSkillReleasing) return false;
 
         CurrentEP -= SkillCosts[sId];
         OnEnergyChanged?.Invoke((float)CurrentEP / MaxEP);

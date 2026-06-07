@@ -26,6 +26,7 @@ public class GameManager : MonoBehaviour
     public float ClapCooldown = 0.125f;
 
     public static event Action OnHandClap;
+    public bool isSkillReleasing;
 
     float _clapCooldownTimer = 0f;
     System.Random r = new System.Random();
