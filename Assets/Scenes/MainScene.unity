@@ -2863,8 +2863,13 @@ MonoBehaviour:
   nukeSkillId: 3
   radiationIcon: {fileID: 484613882}
   alertClipName: NuclearWarningSFX
+  boomClipName: VineBoom
   alertClipReference: {fileID: 0}
   ashPrefab: {fileID: 7535581581260483809, guid: 515ec98b1ff5e63419b306578ad4a0f9, type: 3}
+  easterEggSprite: {fileID: 21300000, guid: 7235071c4af6b5d4a86c5e307d18349e, type: 3}
+  easterEggAlpha: 0.3
+  easterEggStartScale: {x: 0.2, y: 3}
+  easterEggEndScale: {x: 6, y: 0.5}
 --- !u!114 &1081389761
 MonoBehaviour:
   m_ObjectHideFlags: 0

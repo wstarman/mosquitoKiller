@@ -227,7 +227,9 @@ public abstract class MosquitoBase : MonoBehaviour
     /// <summary>HP 歸零時呼叫。預設行為：加分、充能、回收到 Pool。覆寫時如需保留預設行為請呼叫 base.OnDeath()。</summary>
     protected virtual void OnDeath(DamageSource source)
     {
-        AudioManager.Instance.PlaySFX("Blood_Hit");
+        if (source != DamageSource.SkillExplotion) { 
+        AudioManager.Instance.PlaySFX("Blood_Hit"); 
+        }
         ScoreManager.Instance?.Add(
             _state == MosquitoState.Attacking
                 ? (int)(ScoreValue * 1.5f)   // Parry bonus (x1.5)

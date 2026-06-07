@@ -20,12 +20,24 @@ public class NukeSkill : MonoBehaviour
     public GameObject radiationIcon;
     [Tooltip("AudioManager 字典中的音效鍵值")]
     public string alertClipName = "NuclearWarningSFX";
+    public string boomClipName = "VineBoom";
     [Tooltip("用於獲取音效長度的參考檔案")]
     public AudioClip alertClipReference;
 
     [Header("擊殺特效")]
     [Tooltip("蚊子死後原地留下的圖片預製件")]
     public GameObject ashPrefab;
+
+    [Header("彩蛋特效")]
+    [Tooltip("閃白時顯示的彩蛋圖片 Sprite。請在 Inspector 中指派圖片。")]
+    public Sprite easterEggSprite;
+    [Tooltip("彩蛋圖片在白屏幕上的初始透明度 (0 ~ 1)")]
+    [Range(0f, 1f)]
+    public float easterEggAlpha = 0.5f;
+    [Tooltip("剛出現時的變形比例 (X為寬, Y為高)。預設 0.2, 3 代表極度瘦長")]
+    public Vector2 easterEggStartScale = new Vector2(0.2f, 3f);
+    [Tooltip("消失前的變形比例。預設 4, 0.5 代表極度扁平且寬大")]
+    public Vector2 easterEggEndScale = new Vector2(4f, 0.5f);
 
     private void OnEnable()
     {
@@ -90,10 +102,11 @@ public class NukeSkill : MonoBehaviour
                     }
 
                     // 2. 造成核爆傷害
-                    damageable.TakeDamage(9999, DamageSource.Explosion);
+                    damageable.TakeDamage(9999, DamageSource.SkillExplotion);
                 }
             }
         }
+        AudioManager.Instance.PlaySFX(boomClipName, 0.15f);
         GameManager.Instance.isSkillReleasing = false;
     }
 
@@ -109,11 +122,40 @@ public class NukeSkill : MonoBehaviour
         Image flashImg = flashImgObj.AddComponent<Image>();
         flashImg.color = Color.white;
 
-        RectTransform rect = flashImg.GetComponent<RectTransform>();
-        rect.anchorMin = Vector2.zero;
-        rect.anchorMax = Vector2.one;
-        rect.offsetMin = Vector2.zero;
-        rect.offsetMax = Vector2.zero;
+        RectTransform whiteRect = flashImg.GetComponent<RectTransform>();
+        whiteRect.anchorMin = Vector2.zero;
+        whiteRect.anchorMax = Vector2.one;
+        whiteRect.offsetMin = Vector2.zero;
+        whiteRect.offsetMax = Vector2.zero;
+
+        // --- 彩蛋圖片設定 ---
+        GameObject easterEggObj = null;
+        Image easterEggImg = null;
+        Color easterEggColor = Color.white;
+
+        if (easterEggSprite != null)
+        {
+            easterEggObj = new GameObject("EasterEggImage");
+            easterEggObj.transform.SetParent(flashCanvasObj.transform, false);
+
+            easterEggImg = easterEggObj.AddComponent<Image>();
+            easterEggImg.sprite = easterEggSprite;
+            // 關鍵修改：關閉保持比例，讓圖片可以被暴力拉伸
+            easterEggImg.preserveAspect = false;
+
+            // 讓圖片預設就填滿整個螢幕，之後再用 Scale 放大扭曲
+            RectTransform eggRect = easterEggImg.GetComponent<RectTransform>();
+            eggRect.anchorMin = Vector2.zero;
+            eggRect.anchorMax = Vector2.one;
+            eggRect.offsetMin = Vector2.zero;
+            eggRect.offsetMax = Vector2.zero;
+
+            easterEggColor = new Color(1f, 1f, 1f, easterEggAlpha);
+            easterEggImg.color = easterEggColor;
+
+            // 套用初始超醜比例
+            eggRect.localScale = new Vector3(easterEggStartScale.x, easterEggStartScale.y, 1f);
+        }
 
         float flashDuration = 1.5f;
         float elapsed = 0f;
@@ -121,8 +163,23 @@ public class NukeSkill : MonoBehaviour
         while (elapsed < flashDuration)
         {
             elapsed += Time.deltaTime;
-            float alpha = Mathf.Lerp(1f, 0f, elapsed / flashDuration);
-            flashImg.color = new Color(1f, 1f, 1f, alpha);
+            float fadeRatio = elapsed / flashDuration;
+
+            float whiteAlpha = Mathf.Lerp(1f, 0f, fadeRatio);
+            flashImg.color = new Color(1f, 1f, 1f, whiteAlpha);
+
+            if (easterEggImg != null)
+            {
+                // 透明度漸隱
+                float currentEggAlpha = Mathf.Lerp(easterEggAlpha, 0f, fadeRatio);
+                easterEggImg.color = new Color(easterEggColor.r, easterEggColor.g, easterEggColor.b, currentEggAlpha);
+
+                // 關鍵修改：動態暴力變形 (從瘦長變成寬扁)
+                float currentScaleX = Mathf.Lerp(easterEggStartScale.x, easterEggEndScale.x, fadeRatio);
+                float currentScaleY = Mathf.Lerp(easterEggStartScale.y, easterEggEndScale.y, fadeRatio);
+                easterEggImg.transform.localScale = new Vector3(currentScaleX, currentScaleY, 1f);
+            }
+
             yield return null;
         }
 
