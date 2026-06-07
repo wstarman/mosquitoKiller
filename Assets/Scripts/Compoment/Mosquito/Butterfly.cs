@@ -19,6 +19,8 @@ public class Butterfly : MosquitoBase
     protected override void OnDeath(DamageSource source)
     {
         ScoreManager.Instance?.Add(-ScoreValue);
+        if (bloodEffectPrefab != null)
+            Instantiate(bloodEffectPrefab, transform.position, Quaternion.identity);
         ReturnToPool();
     }
 

@@ -17,6 +17,8 @@ public abstract class MosquitoBase : MonoBehaviour
 
     // ── 基礎數值 ───────────────────────────────────────────────────────────
 
+    public GameObject bloodEffectPrefab;
+
     [Header("Base Stats")]
     public int MaxHP = 1;
     [Tooltip("死亡得分，負值代表扣分（如吃瓜蝴蝶）")]
@@ -232,6 +234,8 @@ public abstract class MosquitoBase : MonoBehaviour
                 : ScoreValue
         );
         EnergyManager.Instance?.AddEnergy(EnergyOnDeath);
+        if (bloodEffectPrefab != null)
+            Instantiate(bloodEffectPrefab, transform.position, Quaternion.identity);
         ReturnToPool();
     }
 

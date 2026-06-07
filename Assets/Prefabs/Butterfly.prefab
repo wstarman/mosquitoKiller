@@ -183,6 +183,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a301461a179bcf74b90a19498e719c10, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  bloodEffectPrefab: {fileID: 4553287630450876385, guid: 5fdbe14551a50144b852ba3befd2f81b, type: 3}
   MaxHP: 1
   PointsOnDeath: 100
   EnergyOnDeath: 10

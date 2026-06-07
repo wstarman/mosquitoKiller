@@ -6,6 +6,8 @@ public class ClapEffect : MonoBehaviour
     [Tooltip("碰撞箱開啟持續時間（秒）")]
     public float ColliderDuration = 0.1f;
 
+    public ParticleSystem explotionEffect;
+
     int _visualCounter = 0;
     bool _show = false;
     float _colliderTimer = 0f;
@@ -79,10 +81,11 @@ public class ClapEffect : MonoBehaviour
                          GameStateManager.Instance.CurrentState == GameState.Playing;
 
         transform.localScale = isPlaying ? _playingScale : _cursorScale;
+        explotionEffect.Play();
         _visualCounter = isPlaying ? 15 : 15;   // playing: 0.5 sec, cursor: 0.3 sec
 
         // 視覺顯示
-        GetComponent<Renderer>().enabled = true;
+        // GetComponent<Renderer>().enabled = true;
         _show = true;
 
         // 碰撞箱只短暫開啟
