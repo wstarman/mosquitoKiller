@@ -15,7 +15,7 @@ using UnityEngine.UI;
 /// </summary>
 public class EnergyBar : MonoBehaviour
 {
-    public HealthBar bar;
+    public SliderBar bar;
 
     void OnEnable()
     {
