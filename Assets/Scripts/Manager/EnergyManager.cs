@@ -58,7 +58,6 @@ public class EnergyManager : MonoBehaviour
                 AudioManager.Instance.PlaySFX("hadouken");
                 break;
             case Skill.Explosion:
-                AudioManager.Instance.PlaySFX("explosion");
                 break;
             case Skill.Swatter:
                 AudioManager.Instance.PlaySFX("swatter");

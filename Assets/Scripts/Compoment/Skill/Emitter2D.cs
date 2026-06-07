@@ -8,7 +8,6 @@ public class Emitter2D : MonoBehaviour
     {
         // 因為是靜態事件，直接用「類別名稱.事件」來訂閱
         EnergyManager.OnSkillActivated += HandleSkillActivated;
-        Debug.Log("波動拳發射器已成功訂閱靜態事件！");
     }
 
     void OnDisable()
@@ -19,7 +18,6 @@ public class Emitter2D : MonoBehaviour
 
     void HandleSkillActivated(int sId)
     {
-        Debug.Log($"收到技能發動訊號！技能 ID: {sId}");
 
         if (hadokenPrefab == null) return;
 
@@ -39,7 +37,6 @@ public class Emitter2D : MonoBehaviour
             if (script != null)
             {
                 script.Initialize(sId); // 把正確的 ID 傳進去，它才會正確設定 _handType
-                Debug.Log($"成功將技能 ID {sId} 傳給波動拳腳本");
             }
         }
     }
