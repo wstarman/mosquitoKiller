@@ -413,6 +413,7 @@ MonoBehaviour:
   CursorClapDistance: 0.3
   CursorResetDistance: 0.6
   ClapCooldown: 0.125
+  isSkillReleasing: 0
 --- !u!4 &180215735
 Transform:
   m_ObjectHideFlags: 0
@@ -2795,6 +2796,7 @@ GameObject:
   - component: {fileID: 1081389757}
   - component: {fileID: 1081389759}
   - component: {fileID: 1081389760}
+  - component: {fileID: 1081389761}
   m_Layer: 0
   m_Name: Skillmanager
   m_TagString: Untagged
@@ -2863,6 +2865,28 @@ MonoBehaviour:
   alertClipName: NuclearWarningSFX
   alertClipReference: {fileID: 0}
   ashPrefab: {fileID: 7535581581260483809, guid: 515ec98b1ff5e63419b306578ad4a0f9, type: 3}
+--- !u!114 &1081389761
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1081389756}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aff5b648d3f6b924ebe9021801d68f74, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lightningSkillId: 4
+  mainLightningPrefab: {fileID: 9027514048236820045, guid: effb650189dc5714e9e9801b1cfb3991, type: 3}
+  mainHandType: 1
+  killRadius: 1.5
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  visualOnlyPrefab: {fileID: 763799897560185588, guid: 798157bad7358b04499c9d71cd3c0d9b, type: 3}
+  visualHandType: 1
+  duration: 10
 --- !u!1 &1100903740
 GameObject:
   m_ObjectHideFlags: 0
