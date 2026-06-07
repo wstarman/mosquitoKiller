@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: -1330360494318303563}
   - component: {fileID: 6922266519394955123}
   - component: {fileID: 5616773927213528010}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: FatMosquito
   m_TagString: Untagged
   m_Icon: {fileID: 0}

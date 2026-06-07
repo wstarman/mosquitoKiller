@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 4406908637111320926}
   - component: {fileID: -3398861040336976641}
   - component: {fileID: -5333698794668573124}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: TinyMosquito
   m_TagString: Untagged
   m_Icon: {fileID: 0}

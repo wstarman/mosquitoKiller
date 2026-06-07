@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 9222549535851408906}
   - component: {fileID: 3140459562917675082}
   - component: {fileID: -1878217339365254295}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Butterfly
   m_TagString: Untagged
   m_Icon: {fileID: 0}
