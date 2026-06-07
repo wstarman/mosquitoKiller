@@ -3,28 +3,28 @@ using UnityEngine.UI;
 using System.Collections;
 
 /// <summary>
-/// ¿ØÖÆºË±¬¼¼ÄÜµÄß‰İ‹£¬°üº¬UI¾¯ˆó¡¢ÒôĞ§²¥·Å¡¢‚ûº¦½YËã¼°È«ÎÄ»éW¹âÌØĞ§¡£
+/// æ§åˆ¶æ ¸çˆ†æŠ€èƒ½çš„é‚è¼¯ï¼ŒåŒ…å«UIè­¦å ±ã€éŸ³æ•ˆæ’­æ”¾ã€å‚·å®³çµç®—åŠå…¨è¢å¹•é–ƒå…‰ç‰¹æ•ˆã€‚
 /// </summary>
 public class NukeSkill : MonoBehaviour
 {
-    [Header("ºË±¬ÔO¶¨")]
-    [Tooltip("±¬Õ¨•rÉú³ÉµÄÒ•ÓXÌØĞ§îAÑu¼ş")]
+    [Header("æ ¸çˆ†è¨­å®š")]
+    [Tooltip("çˆ†ç‚¸æ™‚ç”Ÿæˆçš„è¦–è¦ºç‰¹æ•ˆé è£½ä»¶")]
     public GameObject nukeEffectPrefab;
-    [Tooltip("ÊÜºË±¬Ó°í‘µÄ”³ÜŠŒÓ¼‰")]
+    [Tooltip("å—æ ¸çˆ†å½±éŸ¿çš„æ•µè»å±¤ç´š")]
     public LayerMask enemyLayer;
-    [Tooltip("Œ¦‘ª EnergyManager µÄ¼¼ÄÜ ID")]
+    [Tooltip("å°æ‡‰ EnergyManager çš„æŠ€èƒ½ ID")]
     public int nukeSkillId = 3;
 
-    [Header("UI ÅcÒôĞ§ÔO¶¨")]
-    [Tooltip("ˆö¾°ÖĞë[²ØµÄ¾¯ˆó UI Îï¼ş")]
+    [Header("UI èˆ‡éŸ³æ•ˆè¨­å®š")]
+    [Tooltip("å ´æ™¯ä¸­éš±è—çš„è­¦å ± UI ç‰©ä»¶")]
     public GameObject radiationIcon;
-    [Tooltip("AudioManager ×ÖµäÖĞµÄÒôĞ§æIÖµ")]
+    [Tooltip("AudioManager å­—å…¸ä¸­çš„éŸ³æ•ˆéµå€¼")]
     public string alertClipName = "NuclearWarningSFX";
-    [Tooltip("ÓÃì¶«@È¡ÒôĞ§éL¶ÈµÄ…¢¿¼™n°¸")]
+    [Tooltip("ç”¨æ–¼ç²å–éŸ³æ•ˆé•·åº¦çš„åƒè€ƒæª”æ¡ˆ")]
     public AudioClip alertClipReference;
 
-    [Header("“ôš¢ÌØĞ§")]
-    [Tooltip("ÎÃ×ÓËÀááÔ­µØÁôÏÂµÄˆDÆ¬îAÑu¼ş")]
+    [Header("æ“Šæ®ºç‰¹æ•ˆ")]
+    [Tooltip("èšŠå­æ­»å¾ŒåŸåœ°ç•™ä¸‹çš„åœ–ç‰‡é è£½ä»¶")]
     public GameObject ashPrefab;
 
     private void OnEnable()
@@ -73,20 +73,20 @@ public class NukeSkill : MonoBehaviour
                 var damageable = obj.GetComponent<MosquitoBase>();
                 if (damageable != null)
                 {
-                    // 1. ÔÚÎÃ×ÓËÀÍöÇ°£¬ì¶Ô­µØÉú³ÉÒ»ˆˆDÆ¬
+                    // 1. åœ¨èšŠå­æ­»äº¡å‰ï¼Œæ–¼åŸåœ°ç”Ÿæˆä¸€å¼µåœ–ç‰‡
                     if (ashPrefab != null)
                     {
                         GameObject ash = Instantiate(ashPrefab, obj.transform.position, Quaternion.identity);
 
-                        // ‡LÔ‡°Ñß@ˆˆDÆ¬ŠÖÆÈ¾³ÉºÚÉ«
+                        // å˜—è©¦æŠŠé€™å¼µåœ–ç‰‡å¼·åˆ¶æŸ“æˆé»‘è‰²
                         SpriteRenderer sr = ash.GetComponent<SpriteRenderer>();
                         if (sr != null) sr.color = Color.black;
 
-                        // ÔO¶¨ 3 Ãëáá×Ô„Ó„h³ıÔ“ˆDÆ¬
+                        // è¨­å®š 3 ç§’å¾Œè‡ªå‹•åˆªé™¤è©²åœ–ç‰‡
                         Destroy(ash, 3.0f);
                     }
 
-                    // 2. Ôì³ÉºË±¬‚ûº¦
+                    // 2. é€ æˆæ ¸çˆ†å‚·å®³
                     damageable.TakeDamage(9999, DamageSource.Explosion);
                 }
             }

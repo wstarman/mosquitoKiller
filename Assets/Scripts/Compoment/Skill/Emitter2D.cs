@@ -6,13 +6,13 @@ public class Emitter2D : MonoBehaviour
 
     void OnEnable()
     {
-        // ÒòéÊÇìo‘BÊÂ¼ş£¬Ö±½ÓÓÃ¡¸î„eÃû·Q.ÊÂ¼ş¡¹íÓ†é†
+        // å› ç‚ºæ˜¯éœæ…‹äº‹ä»¶ï¼Œç›´æ¥ç”¨ã€Œé¡åˆ¥åç¨±.äº‹ä»¶ã€ä¾†è¨‚é–±
         EnergyManager.OnSkillActivated += HandleSkillActivated;
     }
 
     void OnDisable()
     {
-        // êPé]»òäNš§•r£¬Í¬˜ÓÖ±½ÓÈ¡ÏûÓ†é†¼´¿É
+        // é—œé–‰æˆ–éŠ·æ¯€æ™‚ï¼ŒåŒæ¨£ç›´æ¥å–æ¶ˆè¨‚é–±å³å¯
         EnergyManager.OnSkillActivated -= HandleSkillActivated;
     }
 
@@ -21,22 +21,22 @@ public class Emitter2D : MonoBehaviour
 
         if (hadokenPrefab == null) return;
 
-        // ÅĞ”àÊÇ·ñé²¨„ÓÈ­ÏàêP¼¼ÄÜ
+        // åˆ¤æ–·æ˜¯å¦ç‚ºæ³¢å‹•æ‹³ç›¸é—œæŠ€èƒ½
         if (sId == (int)Skill.HadokenLeft || sId == (int)Skill.HadokenRight)
         {
-            // 1. ›Q¶¨×ù˜Ë
+            // 1. æ±ºå®šåº§æ¨™
             Vector3 spawnPos = (sId == (int)Skill.HadokenLeft) 
                 ? GameManager.Instance.leftHand 
                 : GameManager.Instance.rightHand;
 
-            // 2. Éú³ÉÎï¼ş
+            // 2. ç”Ÿæˆç‰©ä»¶
             GameObject go = Instantiate(hadokenPrefab, spawnPos, Quaternion.identity);
             
-            // 3. --- êPæIĞŞÕı£ººô½Ğ Initialize ---
+            // 3. --- é—œéµä¿®æ­£ï¼šå‘¼å« Initialize ---
             Hadoken2DScript script = go.GetComponent<Hadoken2DScript>();
             if (script != null)
             {
-                script.Initialize(sId); // °ÑÕı´_µÄ ID ‚÷ßMÈ¥£¬Ëü²Å•şÕı´_ÔO¶¨ _handType
+                script.Initialize(sId); // æŠŠæ­£ç¢ºçš„ ID å‚³é€²å»ï¼Œå®ƒæ‰æœƒæ­£ç¢ºè¨­å®š _handType
             }
         }
     }

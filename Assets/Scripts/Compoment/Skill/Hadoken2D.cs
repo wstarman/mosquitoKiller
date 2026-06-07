@@ -2,24 +2,24 @@ using UnityEngine;
 
 public class Hadoken2DScript : MonoBehaviour
 {
-    [Header("»ùµAÔO¶¨")]
+    [Header("åŸºç¤è¨­å®š")]
     public float speed = 10f;
     public float lifeTime = 3f;
     public int damage = 1;
 
-    [Header("ĞîÁ¦ÔO¶¨")]
+    [Header("è“„åŠ›è¨­å®š")]
     public float chargeDuration = 0.4f;
     public float minScale = 0.2f;
     public float maxScale = 1.0f;
 
-    [Header("²¨ÀËÔO¶¨")]
+    [Header("æ³¢æµªè¨­å®š")]
     public float waveAmplitude = 0.5f;
     public float waveFrequency = 8.0f;
 
-    [Header("±¬Õ¨Åc™zœyÔO¶¨")]
-    public GameObject explosionEffectPrefab; // ÍÏÈë±¬Õ¨ÌØĞ§
-    public float explosionRadius = 2.0f;     // ±¬Õ¨¹ ‡ú
-    public LayerMask enemyLayer;             // ÔÚ Inspector ¹´ßx Enemy ŒÓ¼‰
+    [Header("çˆ†ç‚¸èˆ‡æª¢æ¸¬è¨­å®š")]
+    public GameObject explosionEffectPrefab; // æ‹–å…¥çˆ†ç‚¸ç‰¹æ•ˆ
+    public float explosionRadius = 2.0f;     // çˆ†ç‚¸ç¯„åœ
+    public LayerMask enemyLayer;             // åœ¨ Inspector å‹¾é¸ Enemy å±¤ç´š
 
     private float _timer = 0f;
     private bool _isCharging = true;
@@ -30,12 +30,12 @@ public class Hadoken2DScript : MonoBehaviour
 
     public void Initialize(int sId)
     {
-        // Èç¹ûÊÇ×óÊÖ£¬ÔOé 0
+        // å¦‚æœæ˜¯å·¦æ‰‹ï¼Œè¨­ç‚º 0
         if (sId == (int)Skill.HadokenLeft)
         {
             _handType = 0;
         }
-        // Èç¹ûÊÇÓÒÊÖ£¬ÔOé 1
+        // å¦‚æœæ˜¯å³æ‰‹ï¼Œè¨­ç‚º 1
         else if (sId == (int)Skill.HadokenRight)
         {
             _handType = 1;
@@ -67,7 +67,7 @@ public class Hadoken2DScript : MonoBehaviour
         _timer += Time.deltaTime;
         Vector3 currentHandPos = GetHandPosition();
 
-        // ·½ÏòÓ‹Ëã (±£µ×ÏòÓÒ)
+        // æ–¹å‘è¨ˆç®— (ä¿åº•å‘å³)
         Vector3 delta = currentHandPos - _lastHandPos;
         _launchDirection = delta.magnitude > 0.01f ? delta.normalized : Vector3.right;
         _lastHandPos = currentHandPos;
@@ -86,15 +86,15 @@ public class Hadoken2DScript : MonoBehaviour
 
     void UpdateFlying()
     {
-        // Ö±¾€Î»ÒÆ
+        // ç›´ç·šä½ç§»
         transform.position += _launchDirection * speed * Time.deltaTime;
 
-        // ²¨ÀËĞ§¹û
+        // æ³¢æµªæ•ˆæœ
         Vector3 right = _launchDirection;
         Vector3 up = new Vector3(-right.y, right.x, 0);
         float yOffset = Mathf.Sin(Time.time * waveFrequency) * waveAmplitude;
 
-        // ĞŞÕı£ºÔÚ Update ÖĞÖ±½ÓÔO¶¨Î»ÖÃ•ş¸²ÉwµôÖ±¾€Î»ÒÆ£¬¸ÄéÀÛ¼ÓÆ«ÒÆÁ¿
+        // ä¿®æ­£ï¼šåœ¨ Update ä¸­ç›´æ¥è¨­å®šä½ç½®æœƒè¦†è“‹æ‰ç›´ç·šä½ç§»ï¼Œæ”¹ç‚ºç´¯åŠ åç§»é‡
         transform.position += up * (yOffset * Time.deltaTime * waveFrequency);
     }
 
@@ -102,17 +102,17 @@ public class Hadoken2DScript : MonoBehaviour
     {
         if (_isCharging) return;
 
-        // Ó|°l±¬Õ¨Åc‚ûº¦ß‰İ‹
+        // è§¸ç™¼çˆ†ç‚¸èˆ‡å‚·å®³é‚è¼¯
         Explode();
     }
 
     void Explode()
     {
-        // 1. Éú³ÉÌØĞ§
+        // 1. ç”Ÿæˆç‰¹æ•ˆ
         if (explosionEffectPrefab != null)
             Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
 
-        // 2. ¹ ‡ú™zœy (™zœy enemyLayer)
+        // 2. ç¯„åœæª¢æ¸¬ (æª¢æ¸¬ enemyLayer)
         Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, explosionRadius, enemyLayer);
         foreach (Collider2D hit in hits)
         {
@@ -123,11 +123,11 @@ public class Hadoken2DScript : MonoBehaviour
             }
         }
 
-        // 3. äNš§±¾ów
+        // 3. éŠ·æ¯€æœ¬é«”
         Destroy(gameObject);
     }
 
-    // ÔÚ Unity ÖĞ·½±ã³ıåe¿´µ½¹ ‡ú
+    // åœ¨ Unity ä¸­æ–¹ä¾¿é™¤éŒ¯çœ‹åˆ°ç¯„åœ
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;

@@ -4,12 +4,12 @@ public class CheatEnergy : MonoBehaviour
 {
     void Update()
     {
-        // ‚Éœy°´ÏÂ¿Õ°×æI
+        // åµæ¸¬æŒ‰ä¸‹ç©ºç™½éµ
         if (Input.GetKeyDown(KeyCode.Space))
         {
             if (EnergyManager.Instance != null)
             {
-                // È¡µÃ×î´óÄÜÁ¿Öµ
+                // å–å¾—æœ€å¤§èƒ½é‡å€¼
                 int maxEp = EnergyManager.Instance.MaxEP;
 
                 EnergyManager.Instance.AddEnergy(maxEp); 
