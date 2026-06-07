@@ -91,10 +91,10 @@ public class NukeSkill : MonoBehaviour
 
                     // 2. 造成核爆傷害
                     damageable.TakeDamage(9999, DamageSource.Explosion);
-                    GameManager.Instance.isSkillReleasing = false;
                 }
             }
         }
+        GameManager.Instance.isSkillReleasing = false;
     }
 
     private IEnumerator ScreenFlashEffect()
