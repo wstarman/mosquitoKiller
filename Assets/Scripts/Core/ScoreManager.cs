@@ -1,9 +1,11 @@
+using System;
 using UnityEngine;
 
 public class ScoreManager : MonoBehaviour
 {
     public static ScoreManager Instance { get; private set; }
     public int Score { get; private set; }
+    public static event Action scoreAdded;
 
     void Awake()
     {
@@ -22,5 +24,11 @@ public class ScoreManager : MonoBehaviour
         if (to == GameState.Playing) Score = 0;
     }
 
-    public void Add(int points) => Score += points;
+    public void Add(int points) {
+        Score += points;
+        if (points > 0)
+        {
+            scoreAdded?.Invoke();
+        }
+    }
 }

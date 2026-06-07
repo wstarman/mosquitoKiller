@@ -14,21 +14,18 @@ public class ScoreEffect : MonoBehaviour
 
     void Start()
     {
-                scoreText = GetComponent<TextMeshProUGUI>();
+        scoreText = GetComponent<TextMeshProUGUI>();
         originalScale = transform.localScale;
         originalColor = scoreText.color;
+        ScoreManager.scoreAdded += PlayPopEffect;
     }
 
-    void Update()
+    private void OnDestroy()
     {
-        
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            PlayPopEffect();
-        }
+        ScoreManager.scoreAdded -= PlayPopEffect;
     }
 
-    
+
     public void PlayPopEffect()
     {
         
