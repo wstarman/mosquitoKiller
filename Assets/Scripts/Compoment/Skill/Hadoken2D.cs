@@ -9,6 +9,7 @@ public class Hadoken2DScript : MonoBehaviour
 
     [Header("蓄力設定")]
     public float chargeDuration = 0.4f;
+    public float maxChargeDuration = 0.6f;
     public float minScale = 0.2f;
     public float maxScale = 1.0f;
 
@@ -42,6 +43,7 @@ public class Hadoken2DScript : MonoBehaviour
         }
         _lastHandPos = GetHandPosition();
         transform.localScale = Vector3.one * minScale;
+        GetComponent<SpriteRenderer>().flipX = _handType==1 ? false:true;
     }
 
     Vector3 GetHandPosition()
@@ -69,13 +71,13 @@ public class Hadoken2DScript : MonoBehaviour
 
         // 方向計算 (保底向右)
         Vector3 delta = currentHandPos - _lastHandPos;
-        _launchDirection = delta.magnitude > 0.01f ? delta.normalized : Vector3.right;
+        _launchDirection = delta.magnitude > 0.1f ? delta.normalized : (_handType==1?Vector3.right: Vector3.left);
         _lastHandPos = currentHandPos;
 
         transform.position = currentHandPos;
         transform.localScale = Vector3.one * Mathf.Lerp(minScale, maxScale, _timer / chargeDuration);
 
-        if (_timer >= chargeDuration)
+        if (_timer >= maxChargeDuration || (delta.magnitude > 0.1f && _timer >= chargeDuration))
         {
             _isCharging = false;
             _startPos = transform.position;
@@ -86,6 +88,9 @@ public class Hadoken2DScript : MonoBehaviour
 
     void UpdateFlying()
     {
+        GetComponent<SpriteRenderer>().flipX = false;
+        if(_handType==0)
+            GetComponent<SpriteRenderer>().flipY = true;
         // 直線位移
         transform.position += _launchDirection * speed * Time.deltaTime;
 
