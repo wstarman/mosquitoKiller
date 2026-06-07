@@ -16,7 +16,7 @@ public class InputManager : MonoBehaviour
     readonly float displayMagnification = 10f;
     readonly float skillThresholdBig = 40f;     // �ޯ�P�_�i�e�\���~�t(����)
     readonly float skillThresholdSmall = 25f;   // ���p���~�t�A�ثe�ȥΩ��z����ժ��W���u����
-    readonly int minSkillRemainingFrame = 30; // �ޯ�ݫ���Q�����h�ִV�~�|����
+    readonly int minSkillRemainingFrame = 5; // �ޯ�ݫ���Q�����h�ִV�~�|����
 
     int currentSkillRemainingFrame = 0;
     Skill prevSkill = Skill.None;
