@@ -26,7 +26,7 @@ public class GameManager : MonoBehaviour
     public float ClapCooldown = 0.125f;
 
     public static event Action OnHandClap;
-    public bool isSkillReleasing;
+    public bool isSkillReleasing = false;
 
     float _clapCooldownTimer = 0f;
     System.Random r = new System.Random();
@@ -52,12 +52,17 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        GameStateManager.OnStateChanged += HandleStateChanged;
+    }
 
+    private void OnDestroy()
+    {
+        GameStateManager.OnStateChanged -= HandleStateChanged;
     }
 
     void Update()
     {
-
+        
     }
 
     public void UpdateHand()
@@ -94,5 +99,12 @@ public class GameManager : MonoBehaviour
     void OnSkillDetected(int sId)
     {
         EnergyManager.Instance?.TryUseSkill(sId);
+    }
+    void HandleStateChanged(GameState from, GameState to)
+    {
+        if (to == GameState.Playing)
+        {
+            isSkillReleasing = false;
+        }
     }
 }
