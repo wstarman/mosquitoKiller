@@ -3031,6 +3031,10 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   nukeSkillId: 3
+  radiationIcon: {fileID: 484613882}
+  alertClipName: NuclearWarningSFX
+  alertClipReference: {fileID: 0}
+  ashPrefab: {fileID: 7535581581260483809, guid: 515ec98b1ff5e63419b306578ad4a0f9, type: 3}
 --- !u!1 &1100903740
 GameObject:
   m_ObjectHideFlags: 0
