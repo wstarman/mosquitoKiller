@@ -1,40 +1,40 @@
 using UnityEngine;
 
 /// <summary>
-/// ¿ØÖÆéWëŠÊÖ¼¼ÄÜµÄÄ_±¾£¬Ö§Ô®ëpÊÖªšÁ¢ÌØĞ§ÔO¶¨¡£
-/// °üº¬Ö÷ÌØĞ§(¾ß‚äš¢‚ûÁ¦)Åc¸±ÌØĞ§(¼ƒÒ•ÓX)µÄÉú³É¡¢Î»ÖÃÍ¬²½Åc¹ ‡úÃëš¢ÅĞ¶¨¡£
+/// æ§åˆ¶é–ƒé›»æ‰‹æŠ€èƒ½çš„è…³æœ¬ï¼Œæ”¯æ´é›™æ‰‹ç¨ç«‹ç‰¹æ•ˆè¨­å®šã€‚
+/// åŒ…å«ä¸»ç‰¹æ•ˆ(å…·å‚™æ®ºå‚·åŠ›)èˆ‡å‰¯ç‰¹æ•ˆ(ç´”è¦–è¦º)çš„ç”Ÿæˆã€ä½ç½®åŒæ­¥èˆ‡ç¯„åœç§’æ®ºåˆ¤å®šã€‚
 /// </summary>
 public class LightningHandSkill : MonoBehaviour
 {
-    [Header("¼¼ÄÜÔO¶¨")]
-    [Tooltip("Œ¦‘ª EnergyManager Ó|°l´Ë¼¼ÄÜµÄ ID")]
+    [Header("æŠ€èƒ½è¨­å®š")]
+    [Tooltip("å°æ‡‰ EnergyManager è§¸ç™¼æ­¤æŠ€èƒ½çš„ ID")]
     public int lightningSkillId = 4;
 
-    [Header("Ö÷ÌØĞ§ (ÓĞ‚ûº¦ÅĞ¶¨)")]
-    [Tooltip("ÍÏÈë¾ßÓĞš¢‚ûÁ¦µÄéWëŠÌØĞ§îAÑu¼ş")]
+    [Header("ä¸»ç‰¹æ•ˆ (æœ‰å‚·å®³åˆ¤å®š)")]
+    [Tooltip("æ‹–å…¥å…·æœ‰æ®ºå‚·åŠ›çš„é–ƒé›»ç‰¹æ•ˆé è£½ä»¶")]
     public GameObject mainLightningPrefab;
-    [Tooltip("Ö÷ÌØĞ§½‰¶¨µÄÊÖ²¿£º0 = ×óÊÖ£¬1 = ÓÒÊÖ")]
+    [Tooltip("ä¸»ç‰¹æ•ˆç¶å®šçš„æ‰‹éƒ¨ï¼š0 = å·¦æ‰‹ï¼Œ1 = å³æ‰‹")]
     public int mainHandType = 1;
-    [Tooltip("½ÓÓ|µ½Ö÷ÌØĞ§µÄÖÂËÀÅĞ¶¨°ë½")]
+    [Tooltip("æ¥è§¸åˆ°ä¸»ç‰¹æ•ˆçš„è‡´æ­»åˆ¤å®šåŠå¾‘")]
     public float killRadius = 1.5f;
-    [Tooltip("ÊÜéWëŠÓ°í‘µÄ”³ÜŠŒÓ¼‰ (Ğè¹´ßx Enemy)")]
+    [Tooltip("å—é–ƒé›»å½±éŸ¿çš„æ•µè»å±¤ç´š (éœ€å‹¾é¸ Enemy)")]
     public LayerMask enemyLayer;
 
-    [Header("¸±ÌØĞ§ (¼ƒÒ•ÓX£¬Ÿo‚ûº¦)")]
-    [Tooltip("ÍÏÈë¼ƒÑbï—¡¢Ÿoš¢‚ûÁ¦µÄÌØĞ§îAÑu¼ş")]
+    [Header("å‰¯ç‰¹æ•ˆ (ç´”è¦–è¦ºï¼Œç„¡å‚·å®³)")]
+    [Tooltip("æ‹–å…¥ç´”è£é£¾ã€ç„¡æ®ºå‚·åŠ›çš„ç‰¹æ•ˆé è£½ä»¶")]
     public GameObject visualOnlyPrefab;
-    [Tooltip("¸±ÌØĞ§½‰¶¨µÄÊÖ²¿£º0 = ×óÊÖ£¬1 = ÓÒÊÖ (ÈôÅcÖ÷ÌØĞ§ÏàÍ¬„t•şÖØ¯B)")]
+    [Tooltip("å‰¯ç‰¹æ•ˆç¶å®šçš„æ‰‹éƒ¨ï¼š0 = å·¦æ‰‹ï¼Œ1 = å³æ‰‹ (è‹¥èˆ‡ä¸»ç‰¹æ•ˆç›¸åŒå‰‡æœƒé‡ç–Š)")]
     public int visualHandType = 0;
 
-    [Header("Í¨ÓÃÔO¶¨")]
-    [Tooltip("¼¼ÄÜ³ÖÀm·ÅëŠµÄ•rég (Ãë)")]
+    [Header("é€šç”¨è¨­å®š")]
+    [Tooltip("æŠ€èƒ½æŒçºŒæ”¾é›»çš„æ™‚é–“ (ç§’)")]
     public float duration = 5f;
 
-    // --- ƒÈ²¿ î‘B×ƒ”µ ---
-    private bool _isActive = false;      // ¼¼ÄÜÊÇ·ñÕıÔÚÊ©·ÅÖĞ
-    private float _timer = 0f;           // ¼¼ÄÜ³ÖÀm•régÓ‹•rÆ÷
-    private GameObject _mainInstance;    // Ö÷ÌØĞ§µÄŒÀı
-    private GameObject _visualInstance;  // ¸±ÌØĞ§µÄŒÀı
+    // --- å…§éƒ¨ç‹€æ…‹è®Šæ•¸ ---
+    private bool _isActive = false;      // æŠ€èƒ½æ˜¯å¦æ­£åœ¨æ–½æ”¾ä¸­
+    private float _timer = 0f;           // æŠ€èƒ½æŒçºŒæ™‚é–“è¨ˆæ™‚å™¨
+    private GameObject _mainInstance;    // ä¸»ç‰¹æ•ˆçš„å¯¦ä¾‹
+    private GameObject _visualInstance;  // å‰¯ç‰¹æ•ˆçš„å¯¦ä¾‹
 
     private void OnEnable()
     {
@@ -47,7 +47,7 @@ public class LightningHandSkill : MonoBehaviour
     }
 
     /// <summary>
-    /// ÊÂ¼ş±OÂ £º®”¹ÜÀíÆ÷V²¥¼¼ÄÜ†¢„Ó•rÓ|°l
+    /// äº‹ä»¶ç›£è½ï¼šç•¶ç®¡ç†å™¨å»£æ’­æŠ€èƒ½å•Ÿå‹•æ™‚è§¸ç™¼
     /// </summary>
     private void HandleSkillActivated(int sId)
     {
@@ -58,25 +58,25 @@ public class LightningHandSkill : MonoBehaviour
     }
 
     /// <summary>
-    /// †¢„ÓéWëŠ¼¼ÄÜ£ºæi¶¨Íæ¼Ò î‘B¡¢Ó‹•ršwÁã£¬KÉú³ÉŒ¦‘ªÊÖ²¿µÄÌØĞ§
+    /// å•Ÿå‹•é–ƒé›»æŠ€èƒ½ï¼šé–å®šç©å®¶ç‹€æ…‹ã€è¨ˆæ™‚æ­¸é›¶ï¼Œä¸¦ç”Ÿæˆå°æ‡‰æ‰‹éƒ¨çš„ç‰¹æ•ˆ
     /// </summary>
     public void ActivateLightning()
     {
-        // ±ÜÃâÔÚ¼¼ÄÜˆÌĞĞÆÚég±»ÖØÑ}Ó|°l
+        // é¿å…åœ¨æŠ€èƒ½åŸ·è¡ŒæœŸé–“è¢«é‡è¤‡è§¸ç™¼
         if (_isActive) return;
 
-        // 1. æi¶¨Íæ¼ÒÊ©·¨ î‘B (½ûÖ¹·ÅÏÂÒ»ÕĞ)
+        // 1. é–å®šç©å®¶æ–½æ³•ç‹€æ…‹ (ç¦æ­¢æ”¾ä¸‹ä¸€æ‹›)
         GameManager.Instance.isSkillReleasing = true;
         _isActive = true;
         _timer = 0f;
 
-        // 2. Éú³ÉÖ÷ÌØĞ§ (ÓĞ‚ûº¦)
+        // 2. ç”Ÿæˆä¸»ç‰¹æ•ˆ (æœ‰å‚·å®³)
         if (mainLightningPrefab != null)
         {
             _mainInstance = Instantiate(mainLightningPrefab, GetHandPosition(mainHandType), Quaternion.identity);
         }
 
-        // 3. Éú³É¸±ÌØĞ§ (Ÿo‚ûº¦)
+        // 3. ç”Ÿæˆå‰¯ç‰¹æ•ˆ (ç„¡å‚·å®³)
         if (visualOnlyPrefab != null)
         {
             _visualInstance = Instantiate(visualOnlyPrefab, GetHandPosition(visualHandType), Quaternion.identity);
@@ -85,51 +85,51 @@ public class LightningHandSkill : MonoBehaviour
 
     private void Update()
     {
-        // Ö»ÓĞÔÚ¼¼ÄÜ†¢„Ó•r²ÅˆÌĞĞß‰İ‹
+        // åªæœ‰åœ¨æŠ€èƒ½å•Ÿå‹•æ™‚æ‰åŸ·è¡Œé‚è¼¯
         if (!_isActive) return;
 
         _timer += Time.deltaTime;
 
-        // ™z²é¼¼ÄÜÊÇ·ñ½YÊø
+        // æª¢æŸ¥æŠ€èƒ½æ˜¯å¦çµæŸ
         if (_timer >= duration)
         {
             DeactivateLightning();
             return;
         }
 
-        // È¡µÃ®”ÏÂëpÊÖµÄ¼´•rÎ»ÖÃ
+        // å–å¾—ç•¶ä¸‹é›™æ‰‹çš„å³æ™‚ä½ç½®
         Vector3 mainPos = GetHandPosition(mainHandType);
         Vector3 visualPos = GetHandPosition(visualHandType);
 
-        // 1. Í¬²½¸üĞÂƒÉ‚€ÌØĞ§µÄÎ»ÖÃ£¬×ŒéWëŠ¾o¾oğ¤ÔÚÊÖÉÏ
+        // 1. åŒæ­¥æ›´æ–°å…©å€‹ç‰¹æ•ˆçš„ä½ç½®ï¼Œè®“é–ƒé›»ç·Šç·Šé»åœ¨æ‰‹ä¸Š
         if (_mainInstance != null) _mainInstance.transform.position = mainPos;
         if (_visualInstance != null) _visualInstance.transform.position = visualPos;
 
-        // 2. ¹ ‡ú™zœy£ºÖ»á˜Œ¦¡¸Ö÷ÌØĞ§¡¹µÄÎ»ÖÃßMĞĞ Hitbox ’ßÃè
+        // 2. ç¯„åœæª¢æ¸¬ï¼šåªé‡å°ã€Œä¸»ç‰¹æ•ˆã€çš„ä½ç½®é€²è¡Œ Hitbox æƒæ
         Collider2D[] hits = Physics2D.OverlapCircleAll(mainPos, killRadius, enemyLayer);
         foreach (Collider2D hit in hits)
         {
             MosquitoBase mosquito = hit.GetComponent<MosquitoBase>();
             if (mosquito != null)
             {
-                // ½oÓè˜O´ó‚ûº¦ß_³ÉÃëš¢Ğ§¹û
+                // çµ¦äºˆæ¥µå¤§å‚·å®³é”æˆç§’æ®ºæ•ˆæœ
                 mosquito.TakeDamage(9999, DamageSource.Explosion);
             }
         }
     }
 
     /// <summary>
-    /// ½YÊøéWëŠ¼¼ÄÜ£ºäNš§ÌØĞ§ŒÀı£¬K½â³ıÍæ¼ÒµÄÊ©·¨æi¶¨ î‘B
+    /// çµæŸé–ƒé›»æŠ€èƒ½ï¼šéŠ·æ¯€ç‰¹æ•ˆå¯¦ä¾‹ï¼Œä¸¦è§£é™¤ç©å®¶çš„æ–½æ³•é–å®šç‹€æ…‹
     /// </summary>
     private void DeactivateLightning()
     {
         _isActive = false;
 
-        // ÇåÀíˆöÉÏµÄÌØĞ§Îï¼ş
+        // æ¸…ç†å ´ä¸Šçš„ç‰¹æ•ˆç‰©ä»¶
         if (_mainInstance != null) Destroy(_mainInstance);
         if (_visualInstance != null) Destroy(_visualInstance);
 
-        // ¼¼ÄÜáŒ·ÅÍê®…£¬Íæ¼Ò¿ÉÒÔÊ©·ÅÏÂÒ»ÕĞ
+        // æŠ€èƒ½é‡‹æ”¾å®Œç•¢ï¼Œç©å®¶å¯ä»¥æ–½æ”¾ä¸‹ä¸€æ‹›
         if (GameManager.Instance != null)
         {
             GameManager.Instance.isSkillReleasing = false;
@@ -137,7 +137,7 @@ public class LightningHandSkill : MonoBehaviour
     }
 
     /// <summary>
-    /// ¸ù“ş‚÷ÈëµÄ…¢”µ (0 »ò 1) È¡µÃŒ¦‘ª×óÊÖ»òÓÒÊÖÔÚÊÀ½ç¿ÕégµÄ×ù˜Ë
+    /// æ ¹æ“šå‚³å…¥çš„åƒæ•¸ (0 æˆ– 1) å–å¾—å°æ‡‰å·¦æ‰‹æˆ–å³æ‰‹åœ¨ä¸–ç•Œç©ºé–“çš„åº§æ¨™
     /// </summary>
     private Vector3 GetHandPosition(int hType)
     {
@@ -145,13 +145,13 @@ public class LightningHandSkill : MonoBehaviour
     }
 
     /// <summary>
-    /// ÔÚ Unity ¾İ‹Æ÷ Scene Ò•´°ÖĞÀLÑu³ıåeİoÖú¾€£¬·½±ãÕ{ÕûÅĞ¶¨°ë½
+    /// åœ¨ Unity ç·¨è¼¯å™¨ Scene è¦–çª—ä¸­ç¹ªè£½é™¤éŒ¯è¼”åŠ©ç·šï¼Œæ–¹ä¾¿èª¿æ•´åˆ¤å®šåŠå¾‘
     /// </summary>
     private void OnDrawGizmosSelected()
     {
         if (_isActive)
         {
-            // Ö»•ş®‹³öÖ÷ÌØĞ§µÄüSÉ«ÅĞ¶¨È¦£¬Ö±Ó^ï@Ê¾š¢‚û¹ ‡ú
+            // åªæœƒç•«å‡ºä¸»ç‰¹æ•ˆçš„é»ƒè‰²åˆ¤å®šåœˆï¼Œç›´è§€é¡¯ç¤ºæ®ºå‚·ç¯„åœ
             Gizmos.color = Color.yellow;
             Gizmos.DrawWireSphere(GetHandPosition(mainHandType), killRadius);
         }
