@@ -107,6 +107,7 @@ public class InputManager : MonoBehaviour
 
         // �����ޯ�
         Vector3 upVec = new Vector3(0, 1, 0);
+        Vector3 downVec = new Vector3(0, -1, 0);
         Vector3 leftVec = use3D ? leftShoulderPos - shoulderPos : new Vector3(-1, 0, 0);
         Vector3 rightVec = use3D ? rightShoulderPos - shoulderPos : new Vector3(1, 0, 0);
         if (use3D)
@@ -116,6 +117,7 @@ public class InputManager : MonoBehaviour
         }
         Vector3 leftUpVec = use3D ? leftVec + upVec : new Vector3(-1, 1, 0);
         Vector3 rightUpVec = use3D ? rightVec + upVec : new Vector3(1, 1, 0);
+        Vector3 rightDownVec = use3D ? (rightVec*3 + downVec*4).normalized : new Vector3(3, -4, 0).normalized;
 
         Vector3 leftUpperArm = leftElbowPos - leftShoulderPos;
         Vector3 rightUpperArm = rightElbowPos - rightShoulderPos;
@@ -130,6 +132,7 @@ public class InputManager : MonoBehaviour
         float rightShoulderAngelUp = Vector3.Angle(rightUpperArm, upVec);
         float rightShoulderAngelDiagonal = Vector3.Angle(rightUpperArm, rightUpVec);
         float rightShoulderAngelHorizontal = Vector3.Angle(rightUpperArm, rightVec);
+        float rightShoulderAngelDownDiagonal = Vector3.Angle(rightUpperArm, rightDownVec);
 
         string debugText = $"Elbow Angel: [{leftElbowAngel}, {rightElbowAngel}]\n" +
                                 $"Shoulder Angel: Up:[{leftShoulderAngelUp}, {rightShoulderAngelUp}]\n" +
@@ -156,7 +159,7 @@ public class InputManager : MonoBehaviour
                 }
             }
             // skill 2 �z��
-            if (leftShoulderAngelDiagonal < skillThresholdSmall && rightShoulderAngelDiagonal < skillThresholdSmall)
+            if (leftShoulderAngelUp < skillThresholdSmall && rightShoulderAngelDownDiagonal < skillThresholdSmall)
             {
                 debugText += "Skill: Explosion!\n";
                 currentSkill = Skill.Explosion;
