@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Experimental.GraphView;
+// using UnityEditor.Experimental.GraphView; // Editor-only namespace，不可進 build，暫時保留以追溯來源
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
