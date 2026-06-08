@@ -187,8 +187,10 @@ MonoBehaviour:
   MaxHP: 1
   PointsOnDeath: 100
   EnergyOnDeath: 10
-  ScoreValue: 100
+  ScoreValue: 20
   StingScorePenalty: 20
+  StingDamage: 20
+  HealOnKill: 2
   MoveSpeed: 2
   WanderChangeInterval: 1.5
   WanderDuration: 4
