@@ -1,17 +1,11 @@
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 /// <summary>
-/// 掛在 energyBar GameObject 上，依 EnergyManager.OnEnergyChanged 填色 20 個 block 並更新數值 label。
+/// 掛在 energyBar GameObject 上，將 EnergyManager.OnEnergyChanged 轉發給 SliderBar。
 ///
 /// 場景結構：
 ///   energyBar (此腳本)
-///   └── Frame (Image — 邊框色)
-///       └── Background (Image — panel 底色，四邊內縮製造邊框寬度)
-///           ├── BlocksContainer (HorizontalLayoutGroup)
-///           │   └── Block_00 ~ Block_19 (Image × 20)
-///           └── ValueLabel (TMP_Text — 疊在 Bar 中央，Raycast Target 關閉)
+///   └── SliderBar (Slider 包裝元件)
 /// </summary>
 public class EnergyBar : MonoBehaviour
 {
