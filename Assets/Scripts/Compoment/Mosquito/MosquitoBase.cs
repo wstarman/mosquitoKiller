@@ -30,6 +30,12 @@ public abstract class MosquitoBase : MonoBehaviour
     public int ScoreValue = 100;
     public int StingScorePenalty = 20;
 
+    [Header("Player Damage")]
+    [Tooltip("被叮時對玩家造成的扣血量")]
+    public int StingDamage = 20;
+    [Tooltip("打死此敵人時回復給玩家的血量")]
+    public int HealOnKill = 5;
+
     [Header("Movement")]
     public float MoveSpeed = 2f;
     public float WanderChangeInterval = 1.5f;
@@ -234,6 +240,7 @@ public abstract class MosquitoBase : MonoBehaviour
                 : ScoreValue
         );
         EnergyManager.Instance?.AddEnergy(EnergyOnDeath);
+        GameManager.Instance?.Heal(HealOnKill);
         if (bloodEffectPrefab != null)
             Instantiate(bloodEffectPrefab, transform.position, Quaternion.identity);
         ReturnToPool();
@@ -259,6 +266,7 @@ public abstract class MosquitoBase : MonoBehaviour
     protected virtual void OnSting()
     {
         ScoreManager.Instance?.Add(-StingScorePenalty);
+        GameManager.Instance?.TakeDamage(StingDamage);
     }
 
     /// <summary>與 Hand 碰撞時呼叫，預設不做任何事。</summary>
