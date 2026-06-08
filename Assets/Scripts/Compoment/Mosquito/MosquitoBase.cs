@@ -52,6 +52,7 @@ public abstract class MosquitoBase : MonoBehaviour
 
     protected MosquitoState _state = MosquitoState.Wandering;
     protected Vector2 _moveDir;          // 當前移動方向（單位向量）
+    protected Vector3 _waypoint;         // waypoint 導航的目標點（中央方框內）
     protected float _stateTimer;         // 當前狀態的倒數計時器（用於 PrepareAttack windup）
     protected float _wanderTimer;        // 距離下次隨機換向的剩餘時間
     protected float _wanderDuration;     // 本次 Wandering 已持續的累計時間
@@ -75,6 +76,7 @@ public abstract class MosquitoBase : MonoBehaviour
         _moveDir = Random.insideUnitCircle.normalized;
         _wanderTimer = WanderChangeInterval;
         _wanderDuration = 0f;
+        PickWaypointInPlayArea();
     }
 
     /// <summary>回到 Pool 前呼叫，負責清除暫存狀態（如特效、協程）。</summary>
@@ -90,6 +92,7 @@ public abstract class MosquitoBase : MonoBehaviour
         _wanderTimer = WanderChangeInterval;
         _wanderDuration = 0f;
         CurrentHP = MaxHP;
+        PickWaypointInPlayArea();
         GameStateManager.OnStateChanged += HandleStateChanged;
     }
 
@@ -113,7 +116,7 @@ public abstract class MosquitoBase : MonoBehaviour
         if (!IsAlive) return;
         UpdateStateMachine();
         if (_state != MosquitoState.Attacking)
-            ClampToScreen();
+            ClampToPlayArea();
     }
 
     // ── 狀態機 ─────────────────────────────────────────────────────────────
@@ -130,10 +133,34 @@ public abstract class MosquitoBase : MonoBehaviour
     }
 
     /// <summary>
-    /// 隨機遊走：每隔 WanderChangeInterval 隨機換向；
-    /// 持續 WanderDuration 後進入 PrepareAttack。
+    /// 預設遊走：waypoint 導航（在中央方框內隨機取點直線前進，抵達後換點），
+    /// 持續 WanderDuration 後進入 PrepareAttack。分布天然平均、不卡角。
+    /// 子類可改覆寫為 UpdateWanderingRandom() 走隨機漫步（如 TinyMosquito）。
     /// </summary>
-    protected virtual void UpdateWandering()
+    protected virtual void UpdateWandering() => UpdateWanderingWaypoint();
+
+    /// <summary>Waypoint 導航版遊走：朝中央方框內的目標點直線移動，抵達後重新取點。</summary>
+    protected void UpdateWanderingWaypoint()
+    {
+        transform.position = Vector3.MoveTowards(transform.position, _waypoint, MoveSpeed * Time.deltaTime);
+
+        // 讓 _moveDir 指向目標點，供 PrepareAttack 慢速前移與邊界反彈沿用
+        Vector2 toWp = (Vector2)(_waypoint - transform.position);
+        if (toWp.sqrMagnitude > 0.0001f) _moveDir = toWp.normalized;
+
+        if (Vector2.Distance(transform.position, _waypoint) < 0.2f)
+            PickWaypointInPlayArea();
+
+        _wanderDuration += Time.deltaTime;
+        if (_wanderDuration >= WanderDuration)
+            EnterState(MosquitoState.PrepareAttack);
+    }
+
+    /// <summary>
+    /// 隨機漫步版遊走：方向亂數、每隔 WanderChangeInterval 換向；
+    /// 持續 WanderDuration 後進入 PrepareAttack。供 TinyMosquito 等沿用。
+    /// </summary>
+    protected void UpdateWanderingRandom()
     {
         transform.Translate(_moveDir * MoveSpeed * Time.deltaTime);
 
@@ -148,6 +175,33 @@ public abstract class MosquitoBase : MonoBehaviour
         _wanderDuration += Time.deltaTime;
         if (_wanderDuration >= WanderDuration)
             EnterState(MosquitoState.PrepareAttack);
+    }
+
+    /// <summary>在遊玩區域（PlayArea 物件範圍，無則退回相機可視範圍）內隨機取一個 waypoint。</summary>
+    protected void PickWaypointInPlayArea()
+    {
+        if (!GetPlayBounds(out Vector2 c, out Vector2 e)) { _waypoint = transform.position; return; }
+        _waypoint = new Vector3(
+            Random.Range(c.x - e.x, c.x + e.x),
+            Random.Range(c.y - e.y, c.y + e.y),
+            0f);
+    }
+
+    /// <summary>取得遊玩邊界中心與半寬高。優先用場景中的 PlayArea，沒有則退回相機可視範圍。</summary>
+    protected bool GetPlayBounds(out Vector2 center, out Vector2 halfExtents)
+    {
+        if (PlayArea.Instance != null)
+        {
+            center = PlayArea.Instance.Center;
+            halfExtents = PlayArea.Instance.HalfExtents;
+            return true;
+        }
+        Camera cam = Camera.main;
+        if (cam == null) { center = Vector2.zero; halfExtents = Vector2.zero; return false; }
+        float h = cam.orthographicSize;
+        center = cam.transform.position;
+        halfExtents = new Vector2(h * cam.aspect, h);
+        return true;
     }
 
     /// <summary>攻擊前搖：以較慢速度繼續移動，倒數 AttackWindupDuration 後進入 Attacking。</summary>
@@ -207,6 +261,7 @@ public abstract class MosquitoBase : MonoBehaviour
                 _wanderTimer = WanderChangeInterval;
                 _wanderDuration = 0f;
                 _moveDir = Random.insideUnitCircle.normalized;
+                PickWaypointInPlayArea();
                 break;
             case MosquitoState.Attacking:
                 _baseScale = transform.localScale;  // 記錄進入攻擊前的尺寸
@@ -297,18 +352,26 @@ public abstract class MosquitoBase : MonoBehaviour
         return ((Vector2)GameManager.Instance.leftHand + (Vector2)GameManager.Instance.rightHand) * 0.5f;
     }
 
-    // 以正交攝影機的半寬高計算邊界；碰壁時反彈並夾住位置，防止敵人卡出畫面外。
-    void ClampToScreen()
+    // 以 PlayArea 物件（無則相機可視範圍）為邊界的安全網；撞框反彈並朝中心微調，
+    // 主要服務隨機漫步敵人（waypoint 敵人本就待在框內）。子類可覆寫（Butterfly 離場豁免）。
+    protected virtual void ClampToPlayArea()
     {
-        Camera cam = Camera.main;
-        if (cam == null) return;
-        float h = cam.orthographicSize;
-        float w = h * cam.aspect;
+        if (!GetPlayBounds(out Vector2 c, out Vector2 e)) return;
         Vector3 pos = transform.position;
-        if (Mathf.Abs(pos.x) >= w) _moveDir.x = -_moveDir.x;
-        if (Mathf.Abs(pos.y) >= h) _moveDir.y = -_moveDir.y;
-        pos.x = Mathf.Clamp(pos.x, -w, w);
-        pos.y = Mathf.Clamp(pos.y, -h, h);
+
+        bool bounced = false;
+        if (pos.x <= c.x - e.x || pos.x >= c.x + e.x) { _moveDir.x = -Mathf.Abs(_moveDir.x) * Mathf.Sign(pos.x - c.x); bounced = true; }
+        if (pos.y <= c.y - e.y || pos.y >= c.y + e.y) { _moveDir.y = -Mathf.Abs(_moveDir.y) * Mathf.Sign(pos.y - c.y); bounced = true; }
+
+        if (bounced)
+        {
+            // 朝邊界中心方向 Lerp 並加入小隨機，避免沿邊滑行或卡在框角
+            Vector2 toCenter = (c - (Vector2)pos).normalized;
+            _moveDir = (Vector2.Lerp(_moveDir, toCenter, 0.3f) + Random.insideUnitCircle * 0.2f).normalized;
+        }
+
+        pos.x = Mathf.Clamp(pos.x, c.x - e.x, c.x + e.x);
+        pos.y = Mathf.Clamp(pos.y, c.y - e.y, c.y + e.y);
         transform.position = pos;
     }
 

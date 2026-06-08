@@ -22,7 +22,7 @@ public class TinyMosquito : MosquitoBase
         ) * 0.15f;
         _moveDir = _moveDir.normalized;
 
-        base.UpdateWandering();
+        UpdateWanderingRandom();   // 隨機漫步（非 waypoint），保持飄忽、較難被揮中
     }
 
     protected override void OnHandTouch() => OnDeath(DamageSource.Explosion);
