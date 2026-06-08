@@ -60,6 +60,7 @@ public abstract class MosquitoBase : MonoBehaviour
     Vector3 _baseScale;        // 進入 Attacking 前記錄的原始縮放，用於還原
     float _attackPhaseTimer;   // 攻擊動畫（放大 / 縮小）的計時器
     bool _attackZoomingOut;    // true = 正在執行縮回階段；false = 正在執行放大階段
+    SpriteRenderer _sprite;    // 自身 sprite（含子物件），用於把活動範圍內縮一個身位
 
     // ── HP 屬性 ────────────────────────────────────────────────────────────
 
@@ -88,6 +89,7 @@ public abstract class MosquitoBase : MonoBehaviour
     protected virtual void Start()
     {
         _baseScale = transform.localScale;
+        _sprite = GetComponentInChildren<SpriteRenderer>();
         _moveDir = Random.insideUnitCircle.normalized;
         _wanderTimer = WanderChangeInterval;
         _wanderDuration = 0f;
@@ -177,13 +179,19 @@ public abstract class MosquitoBase : MonoBehaviour
             EnterState(MosquitoState.PrepareAttack);
     }
 
-    /// <summary>在遊玩區域（PlayArea 物件範圍，無則退回相機可視範圍）內隨機取一個 waypoint。</summary>
+    // 自身 sprite 的世界半寬高；把活動範圍內縮這個量，讓整隻（含邊緣）都待在框內，而非只有中心點。
+    protected Vector2 SpriteHalfExtents => _sprite != null ? (Vector2)_sprite.bounds.extents : Vector2.zero;
+
+    /// <summary>在遊玩區域（內縮一個身位後）內隨機取一個 waypoint。</summary>
     protected void PickWaypointInPlayArea()
     {
         if (!GetPlayBounds(out Vector2 c, out Vector2 e)) { _waypoint = transform.position; return; }
+        Vector2 m = SpriteHalfExtents;
+        float ex = Mathf.Max(0f, e.x - m.x);
+        float ey = Mathf.Max(0f, e.y - m.y);
         _waypoint = new Vector3(
-            Random.Range(c.x - e.x, c.x + e.x),
-            Random.Range(c.y - e.y, c.y + e.y),
+            Random.Range(c.x - ex, c.x + ex),
+            Random.Range(c.y - ey, c.y + ey),
             0f);
     }
 
@@ -357,6 +365,9 @@ public abstract class MosquitoBase : MonoBehaviour
     protected virtual void ClampToPlayArea()
     {
         if (!GetPlayBounds(out Vector2 c, out Vector2 e)) return;
+        Vector2 m = SpriteHalfExtents;
+        e.x = Mathf.Max(0f, e.x - m.x);
+        e.y = Mathf.Max(0f, e.y - m.y);
         Vector3 pos = transform.position;
 
         bool bounced = false;
