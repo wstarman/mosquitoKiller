@@ -4,6 +4,8 @@ using UnityEngine;
 public class BloodSplatter : MonoBehaviour
 {
     public float Duration = 5f;
+    [Tooltip("血跡渲染層級；需高於敵人（預設 0）才能蓋住視線造成干擾")]
+    public int SortingOrder = 100;
 
     SpriteRenderer _sr;
     float _timer;
@@ -11,6 +13,7 @@ public class BloodSplatter : MonoBehaviour
     void Start()
     {
         _sr = GetComponent<SpriteRenderer>();
+        _sr.sortingOrder = SortingOrder;   // 程式強制，避免 prefab 設定漂移
         _timer = Duration;
     }
 
