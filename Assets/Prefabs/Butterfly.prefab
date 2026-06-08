@@ -86,7 +86,7 @@ SpriteRenderer:
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
-  m_MaskInteraction: 0
+  m_MaskInteraction: 1
   m_SpriteSortPoint: 0
 --- !u!95 &6136141371326195531
 Animator:
@@ -189,6 +189,8 @@ MonoBehaviour:
   EnergyOnDeath: 10
   ScoreValue: 100
   StingScorePenalty: 20
+  StingDamage: 20
+  HealOnKill: 5
   MoveSpeed: 2
   WanderChangeInterval: 1.5
   WanderDuration: 4
@@ -197,3 +199,5 @@ MonoBehaviour:
   AttackScaleMultiplier: 3
   AttackZoomInDuration: 0.5
   AttackZoomOutDuration: 0.8
+  LifeTime: 6
+  LeaveSpeed: 4

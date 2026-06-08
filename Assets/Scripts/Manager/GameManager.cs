@@ -28,6 +28,12 @@ public class GameManager : MonoBehaviour
     public static event Action OnHandClap;
     public bool isSkillReleasing = false;
 
+    [Header("Player Health")]
+    public int MaxHP = 100;
+    public int CurrentHP { get; private set; }
+    /// <summary>HP 變動時發出，傳入 0~1 normalized 值，供血條 UI 訂閱（與 EnergyManager 一致）。</summary>
+    public static event Action<float> OnHealthChanged;
+
     float _clapCooldownTimer = 0f;
     System.Random r = new System.Random();
 
@@ -105,6 +111,31 @@ public class GameManager : MonoBehaviour
         if (to == GameState.Playing)
         {
             isSkillReleasing = false;
+            CurrentHP = MaxHP;
+            OnHealthChanged?.Invoke((float)CurrentHP / MaxHP);
         }
+    }
+
+    /// <summary>被叮等來源呼叫，只在 Playing 狀態下有效。歸零時提前進入 Result。</summary>
+    public void TakeDamage(int amount)
+    {
+        if (GameStateManager.Instance?.CurrentState != GameState.Playing) return;
+        if (amount <= 0) return;
+
+        CurrentHP = Mathf.Clamp(CurrentHP - amount, 0, MaxHP);
+        OnHealthChanged?.Invoke((float)CurrentHP / MaxHP);
+
+        if (CurrentHP <= 0)
+            GameStateManager.Instance.Transition(GameState.Result);
+    }
+
+    /// <summary>打死敵人等來源呼叫，只在 Playing 狀態下有效。</summary>
+    public void Heal(int amount)
+    {
+        if (GameStateManager.Instance?.CurrentState != GameState.Playing) return;
+        if (amount <= 0) return;
+
+        CurrentHP = Mathf.Clamp(CurrentHP + amount, 0, MaxHP);
+        OnHealthChanged?.Invoke((float)CurrentHP / MaxHP);
     }
 }
