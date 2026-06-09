@@ -743,10 +743,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PhaseDurations:
-  - 15
-  - 15
-  - 15
-  - 45
+  - 0
+  - 0
+  - 0
+  - 0
   LastPhase: 3
 --- !u!1 &307569746
 GameObject:
