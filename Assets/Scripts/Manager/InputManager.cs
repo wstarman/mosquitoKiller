@@ -14,14 +14,15 @@ public class InputManager : MonoBehaviour
     public static bool useKinect = false;
 
     readonly float displayMagnification = 10f;
-    readonly float skillThresholdBig = 40f;     // §Þ¯à§PÂ_¥i®e³\ªº»~®t(¨¤«×)
-    readonly float skillThresholdSmall = 25f;   // ¸û¤pªº»~®t¡A¥Ø«e¶È¥Î©óÃz¬µ¤â¶Õªº¤W¤âÁu¨¤«×
-    readonly int minSkillRemainingFrame = 5; // §Þ¯à»Ý«ùÄò³Q°»´ú¦h¤Ö´V¤~·|ÄÀ©ñ
+    readonly float skillThresholdBig = 40f;     // ï¿½Þ¯ï¿½Pï¿½_ï¿½iï¿½eï¿½\ï¿½ï¿½ï¿½~ï¿½t(ï¿½ï¿½ï¿½ï¿½)
+    readonly float skillThresholdSmall = 25f;   // ï¿½ï¿½ï¿½pï¿½ï¿½ï¿½~ï¿½tï¿½Aï¿½Ø«eï¿½È¥Î©ï¿½ï¿½zï¿½ï¿½ï¿½ï¿½Õªï¿½ï¿½Wï¿½ï¿½ï¿½uï¿½ï¿½ï¿½ï¿½
+    readonly int minSkillRemainingFrame = 5; // ï¿½Þ¯ï¿½Ý«ï¿½ï¿½ï¿½Qï¿½ï¿½ï¿½ï¿½ï¿½hï¿½Ö´Vï¿½~ï¿½|ï¿½ï¿½ï¿½ï¿½
 
     int currentSkillRemainingFrame = 0;
     Skill prevSkill = Skill.None;
 
     public static event Action<int> DetectedSkill;
+    public static event Action<int> DetectedPose;
 
     void Awake()
     {
@@ -61,6 +62,8 @@ public class InputManager : MonoBehaviour
 
     void Update()
     {
+        if (sensor != null) useKinect = sensor.IsAvailable;
+
         if (useKinect)
         {
             UpdateKinect();
@@ -95,15 +98,16 @@ public class InputManager : MonoBehaviour
         Vector3 rightElbowPos = new Vector3(rightElbow.X, rightElbow.Y, use3D ? rightElbow.Z : 0);
         Vector3 shoulderPos = new Vector3(shoulder.X, shoulder.Y, use3D ? shoulder.Z : 0);
 
-        // ¦P¨B¤âªº¦ì¸m¦ÜGM
+        // ï¿½Pï¿½Bï¿½âªºï¿½ï¿½mï¿½ï¿½GM
         var leftHandPos2D = leftHandPos;
         var rightHandPos2D = rightHandPos;
         leftHandPos2D.z = rightHandPos2D.z = 0;
         GameManager.Instance.leftHand = leftHandPos2D * displayMagnification;
         GameManager.Instance.rightHand = rightHandPos2D * displayMagnification;
 
-        // °»´ú§Þ¯à
+        // ï¿½ï¿½ï¿½ï¿½ï¿½Þ¯ï¿½
         Vector3 upVec = new Vector3(0, 1, 0);
+        Vector3 downVec = new Vector3(0, -1, 0);
         Vector3 leftVec = use3D ? leftShoulderPos - shoulderPos : new Vector3(-1, 0, 0);
         Vector3 rightVec = use3D ? rightShoulderPos - shoulderPos : new Vector3(1, 0, 0);
         if (use3D)
@@ -113,6 +117,7 @@ public class InputManager : MonoBehaviour
         }
         Vector3 leftUpVec = use3D ? leftVec + upVec : new Vector3(-1, 1, 0);
         Vector3 rightUpVec = use3D ? rightVec + upVec : new Vector3(1, 1, 0);
+        Vector3 rightDownVec = use3D ? (rightVec*3 + downVec*4).normalized : new Vector3(3, -4, 0).normalized;
 
         Vector3 leftUpperArm = leftElbowPos - leftShoulderPos;
         Vector3 rightUpperArm = rightElbowPos - rightShoulderPos;
@@ -127,16 +132,17 @@ public class InputManager : MonoBehaviour
         float rightShoulderAngelUp = Vector3.Angle(rightUpperArm, upVec);
         float rightShoulderAngelDiagonal = Vector3.Angle(rightUpperArm, rightUpVec);
         float rightShoulderAngelHorizontal = Vector3.Angle(rightUpperArm, rightVec);
+        float rightShoulderAngelDownDiagonal = Vector3.Angle(rightUpperArm, rightDownVec);
 
         string debugText = $"Elbow Angel: [{leftElbowAngel}, {rightElbowAngel}]\n" +
                                 $"Shoulder Angel: Up:[{leftShoulderAngelUp}, {rightShoulderAngelUp}]\n" +
                                 $"\tDiagonal:[{leftShoulderAngelDiagonal}, {rightShoulderAngelDiagonal}]\n" +
                                 $"\tHorizontal[{leftShoulderAngelHorizontal}, {rightShoulderAngelHorizontal}]\n";
         Skill currentSkill = Skill.None;
-        // Âù¤â¥´ª½
+        // ï¿½ï¿½ï¿½â¥´ï¿½ï¿½
         if (leftElbowAngel < skillThresholdBig && rightElbowAngel < skillThresholdBig)
         {
-            // skill 1 ªi°Ê®±
+            // skill 1 ï¿½iï¿½Ê®ï¿½
             if (Vector3.Angle(leftUpperArm, rightUpperArm) < skillThresholdBig)
             {
                 if (Vector3.Angle(leftUpperArm, new Vector3(-1, 0, 0)) < skillThresholdBig ||
@@ -152,14 +158,14 @@ public class InputManager : MonoBehaviour
                     currentSkill = Skill.HadokenRight;
                 }
             }
-            // skill 2 Ãz¬µ
-            if (leftShoulderAngelDiagonal < skillThresholdSmall && rightShoulderAngelDiagonal < skillThresholdSmall)
+            // skill 2 ï¿½zï¿½ï¿½
+            if (leftShoulderAngelUp < skillThresholdSmall && rightShoulderAngelDownDiagonal < skillThresholdSmall)
             {
                 debugText += "Skill: Explosion!\n";
                 currentSkill = Skill.Explosion;
             }
         }
-        // skill 3 ¹q°A©ç
+        // skill 3 ï¿½qï¿½Aï¿½ï¿½
         if (Math.Abs(leftElbowAngel - 90) < skillThresholdBig && rightElbowAngel < skillThresholdBig &&
             leftShoulderAngelUp < skillThresholdBig && rightShoulderAngelUp < skillThresholdBig)
         {
@@ -187,6 +193,7 @@ public class InputManager : MonoBehaviour
 
         Body mainBody = null;
 
+        bool hasTrackedBody = false;
         foreach (var body in bodies)
         {
             if (body == null || !body.IsTracked) continue;
@@ -197,9 +204,12 @@ public class InputManager : MonoBehaviour
             if (body.TrackingId == lockedId)
             {
                 mainBody = body;
+                hasTrackedBody = true;
                 break;
             }
         }
+        if (!hasTrackedBody)
+            lockedId = 0;
 
         Skill currentSkill = Skill.None;
         if (mainBody == null)
@@ -211,7 +221,7 @@ public class InputManager : MonoBehaviour
             currentSkill = ProcessBody(mainBody);
         }
 
-        // ³B²z§Þ¯àÄÀ©ñ
+        // ï¿½Bï¿½zï¿½Þ¯ï¿½ï¿½ï¿½ï¿½ï¿½
         if (currentSkill == prevSkill)
         {
             currentSkillRemainingFrame++;
@@ -225,6 +235,7 @@ public class InputManager : MonoBehaviour
             currentSkillRemainingFrame = 0;
         }
         prevSkill = currentSkill;
+        DetectedPose?.Invoke((int)currentSkill);
 
         frame.Dispose();
     }

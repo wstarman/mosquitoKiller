@@ -3,8 +3,14 @@ using UnityEngine;
 [RequireComponent(typeof(Collider2D))]
 public class ClapEffect : MonoBehaviour
 {
-    int counter = 0;
-    bool show = false;
+    [Tooltip("碰撞箱開啟持續時間（秒）")]
+    public float ColliderDuration = 0.1f;
+
+    public ParticleSystem explotionEffect;
+
+    int _visualCounter = 0;
+    bool _show = false;
+    float _colliderTimer = 0f;
 
     Collider2D _collider;
     Vector3 _playingScale;
@@ -24,22 +30,45 @@ public class ClapEffect : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (counter > 0) counter--;
-        else if (show)
+        // 視覺倒數（與碰撞箱無關）
+        if (_visualCounter > 0) _visualCounter--;
+        else if (_show)
         {
             GetComponent<Renderer>().enabled = false;
-            _collider.enabled = show = false;
+            _show = false;
+        }
+
+        // 碰撞箱獨立 timer，到期自動關閉
+        if (_colliderTimer > 0f)
+        {
+            _colliderTimer -= Time.deltaTime;
+            if (_colliderTimer <= 0f)
+                _collider.enabled = false;
         }
     }
 
     void OnEnable()
     {
         GameManager.OnHandClap += OnHandClap;
+        GamePhaseManager.OnPhaseChanged += OnPhaseChanged;
     }
 
     void OnDisable()
     {
         GameManager.OnHandClap -= OnHandClap;
+        GamePhaseManager.OnPhaseChanged -= OnPhaseChanged;
+    }
+
+    void OnPhaseChanged(GamePhase from, GamePhase to)
+    {
+        if (to != GamePhase.Transition) return;
+
+        // 轉場開始：強制關閉視覺與碰撞箱
+        GetComponent<Renderer>().enabled = false;
+        _show = false;
+        _visualCounter = 0;
+        _collider.enabled = false;
+        _colliderTimer = 0f;
     }
 
     void OnHandClap()
@@ -52,15 +81,22 @@ public class ClapEffect : MonoBehaviour
                          GameStateManager.Instance.CurrentState == GameState.Playing;
 
         transform.localScale = isPlaying ? _playingScale : _cursorScale;
-        counter = isPlaying ? 60 : 18;   // playing: 1 sec, cursor: 0.3 sec
+        explotionEffect.Play();
+        _visualCounter = isPlaying ? 15 : 15;   // playing: 0.5 sec, cursor: 0.3 sec
 
-        GetComponent<Renderer>().enabled = true;
-        _collider.enabled = show = true;
+        // 視覺顯示
+        // GetComponent<Renderer>().enabled = true;
+        _show = true;
+
+        // 碰撞箱只短暫開啟
+        _collider.enabled = true;
+        _colliderTimer = ColliderDuration;
     }
 
     void OnTriggerEnter2D(Collider2D other)
     {
         // 觸發後立刻停用，確保一次拍手只按到一個按鈕
         _collider.enabled = false;
+        _colliderTimer = 0f;
     }
 }

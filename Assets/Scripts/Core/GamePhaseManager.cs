@@ -9,6 +9,9 @@ public class GamePhaseManager : MonoBehaviour
     [Tooltip("每個 Phase 的持續秒數，順序對應 GamePhase enum")]
     public float[] PhaseDurations = { 5f, 5f, 5f };
 
+    [Tooltip("最後一個可玩階段；此階段結束後直接進 Result（目前無 Boss/Transition，預設 Phase4）")]
+    public GamePhase LastPhase = GamePhase.Phase4;
+
     public static event Action<GamePhase, GamePhase> OnPhaseChanged;
 
     bool _isPlaying = false;
@@ -59,11 +62,12 @@ public class GamePhaseManager : MonoBehaviour
 
     public void NextPhase()
     {
-        int next = (int)CurrentPhase + 1;
-        int total = Enum.GetValues(typeof(GamePhase)).Length;
-        if (next < total)
-            EnterPhase((GamePhase)next);
-        else
+        // 到達最後可玩階段就直接結束（跳過 Boss / Transition）
+        if (CurrentPhase >= LastPhase)
+        {
             GameStateManager.Instance.Transition(GameState.Result);
+            return;
+        }
+        EnterPhase((GamePhase)((int)CurrentPhase + 1));
     }
 }
