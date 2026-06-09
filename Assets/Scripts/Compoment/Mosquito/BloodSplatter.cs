@@ -21,7 +21,7 @@ public class BloodSplatter : MonoBehaviour
     {
         _timer -= Time.deltaTime;
         Color c = _sr.color;
-        c.a = Mathf.Clamp01(_timer / Duration);
+        c.a = Mathf.Clamp01(_timer*2f / Duration);
         _sr.color = c;
 
         if (_timer <= 0f)

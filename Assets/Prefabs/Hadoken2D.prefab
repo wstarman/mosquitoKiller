@@ -106,12 +106,13 @@ MonoBehaviour:
   lifeTime: 3
   damage: 1
   chargeDuration: 0.4
+  maxChargeDuration: 0.6
   minScale: 0.8
   maxScale: 4
   waveAmplitude: 0.2
   waveFrequency: 10
   explosionEffectPrefab: {fileID: 390990813912711857, guid: d32665a0620324341a2d7b669bb8105f, type: 3}
-  explosionRadius: 8
+  explosionRadius: 5
   enemyLayer:
     serializedVersion: 2
     m_Bits: 64
