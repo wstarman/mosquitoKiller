@@ -2392,6 +2392,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: GamePanel
       objectReference: {fileID: 0}
+    - target: {fileID: 4650323663312556927, guid: 88171ec0565599c4ca660b4a95b287f2, type: 3}
+      propertyPath: m_fontStyle
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4958495642478197740, guid: 88171ec0565599c4ca660b4a95b287f2, type: 3}
       propertyPath: m_Sprite
       value: 
@@ -4540,6 +4544,7 @@ MonoBehaviour:
   FinalScoreLabel: {fileID: 1160127505}
   RetryButton: {fileID: 2129328183}
   MainMenuButton: {fileID: 863238863}
+  buttonShowDelay: 1
 --- !u!114 &1764692993
 MonoBehaviour:
   m_ObjectHideFlags: 0
